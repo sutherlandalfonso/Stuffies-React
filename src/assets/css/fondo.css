@@ -1,0 +1,87 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body, html {
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+.hero {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  background: url("https://i.postimg.cc/ZRJmDW8M/AQO8ai-RXoga41z-C0-ZC4-N-US9-TBe-Cszq-Lmv-K2-Jz-Mk-Kvm-CXbx-Pvka-P06-Nej-SV6b4d8-JUj-Az-Ez67pq8-ASTRHVp1l-CKBf4-Pdvv-Pa-Y-td.gif") 
+              no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+}
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4); 
+}
+.content {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+}
+.logo {
+  max-width: 300px;  
+  width: 80%;         
+  margin-bottom: 25px;
+  filter: drop-shadow(0 0 10px rgba(0,0,0,0.6));
+}
+.btn-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-home,
+.btn-productos {
+  background: black;
+  border: 2px solid white;
+  color: white;
+  box-shadow: 0 0 8px rgba(255,255,255,0.2);
+}
+.btn:hover {
+  transform: scale(1.1) translateY(-4px);
+  box-shadow: 0 0 15px rgba(255,255,255,0.6);
+}
+.btn:active {
+  transform: scale(0.98) translateY(1px);
+}
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: px; 
+  margin-bottom: 20px; 
+}
+
+.logo {
+  max-width: 115px;   
+  filter: drop-shadow(0 0 10px rgba(0,0,0,0.6));
+}
+
+.brand-name {
+  font-size: clamp(32px, 7vw, 70px); 
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(0,0,0,0.6);
+}
+
