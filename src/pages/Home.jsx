@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "../assets/css/Home.css";
+import "../assets/css/styles.css";
 
 
 import { productos } from "../services/productos.js";
@@ -214,36 +214,20 @@ export default function Home() {
       </section>
 
       {/* Productos destacados */}
-      <section className="featured-products py-5">
-        <div className="container">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h2 className="m-0">Productos Destacados</h2>
-            <Link to="/productos" className="btn btn-outline-dark btn-sm">
-              Ver todo
-            </Link>
-          </div>
-
-          {destacados.length === 0 ? (
-            <div className="alert alert-info mb-0">
-              Aún no hay productos destacados. Pronto tendremos novedades ✨
-            </div>
-          ) : (
-            <div className="row g-3">
-              {destacados.map((p) => (
-                <div className="col-12 col-sm-6 col-md-4 col-lg-3" key={p.id}>
-                  <CardBoundary product={p}>
-                    {/* Si ProductCard falla, el ErrorBoundary muestra una tarjeta básica */}
-                    <ProductCard product={p} />
-                    {/* Alternativa:
-                    <SimpleCard p={p} />
-                    */}
-                  </CardBoundary>
-                </div>
-              ))}
-            </div>
-          )}
+<section className="featured-products">
+  <div className="container">
+    <h2>Productos Destacados</h2>
+    <div className="row g-4">
+      {destacados.map((p) => (
+        <div key={p.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
+          <ProductCard product={p} />
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
+
     </main>
   );
+  
 }

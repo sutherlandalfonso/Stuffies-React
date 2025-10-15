@@ -8,7 +8,7 @@ export default function Productos() {
   }, []);
 
   return (
-    <main className="py-5">
+    <main className="productos-page py-5">
       <div className="container">
         <h2 className="text-light mb-4">Todos los productos</h2>
 
