@@ -1,60 +1,31 @@
-// src/components/Footer.jsx
-export default function Footer() {
+export default function Footer(){
   return (
-    <footer>
-      {/* Bloque About Preview */}
-      <section className="about-preview">
-        <div className="container">
-          <div className="about-content">
-            <div className="about-text">
-              <h2>Stuffies - Moda Urbana Chilena</h2>
-              <p>
-                Desde nuestro lanzamiento en junio de 2024, nos dedicamos a crear
-                ropa moderna y de calidad con estilo estadounidense para que todos
-                puedan vestir a la última moda.
-              </p>
-            </div>
-            <div className="about-image">
-              <img
-                src="https://i.postimg.cc/R0phZ77L/ESTRELLA-BLANCA.png"
-                alt="Logo Stuffies"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer real */}
-      <div className="container">
-        <div className="footer-content">
-          <div className="footer-section">
+    <footer className="mt-5 bg-light border-top">
+      <div className="container py-4">
+        <div className="row g-4">
+          <div className="col-12 col-md-4">
             <h3>STUFFIES</h3>
-            <p>Tienda online de ropa urbana y casual en Chile</p>
+            <p className="mb-0">Tienda online de ropa urbana y casual en Chile</p>
           </div>
-
-          <div className="footer-section">
+          <div className="col-6 col-md-4">
             <h4>Enlaces</h4>
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="/productos">Productos</a></li>
-              <li><a href="/blogs">Blogs</a></li>
-              <li><a href="/nosotros">Nosotros</a></li>
-              <li><a href="/contacto">Contacto</a></li>
+            <ul className="list-unstyled">
+              <li><a href="/" className="link-dark text-decoration-none">Home</a></li>
+              <li><a href="/productos" className="link-dark text-decoration-none">Productos</a></li>
+              <li><a href="/blogs" className="link-dark text-decoration-none">Blogs</a></li>
+              <li><a href="/nosotros" className="link-dark text-decoration-none">Nosotros</a></li>
+              <li><a href="/contacto" className="link-dark text-decoration-none">Contacto</a></li>
             </ul>
           </div>
-
-          <div className="footer-section">
+          <div className="col-6 col-md-4">
             <h4>Suscríbete</h4>
-            <form className="subscribe-form" id="subscribe-form">
-              <input type="email" placeholder="Ingresa tu email" required />
-              <button type="submit">Suscribirse</button>
+            <form className="d-flex gap-2">
+              <input type="email" className="form-control" placeholder="Ingresa tu email" required />
+              <button className="btn btn-primary" type="submit">Suscribirse</button>
             </form>
           </div>
         </div>
-
-        <div className="footer-bottom">
-          <p>&copy; 2024 Stuffies. Todos los derechos reservados.</p>
-        </div>
+        <div className="text-center small text-muted pt-3">&copy; 2024 Stuffies. Todos los derechos reservados.</div>
       </div>
     </footer>
   );
