@@ -1,177 +1,93 @@
 // src/pages/Carrito.jsx
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { getCart, setCart, getCartTotals } from "../services/cart.js";
 
-const KEY = "carrito";
 const CLP = new Intl.NumberFormat("es-CL");
 
-// Helpers (adaptados 1:1 de tu HTML)
-function toNumber(v) {
-  if (typeof v === "number") return v;
-  if (typeof v !== "string") return Number(v) || 0;
-  const cleaned = v.replace(/\./g, "").replace(/\s/g, "").replace(",", ".");
-  const n = Number(cleaned);
-  return Number.isNaN(n) ? 0 : n;
-}
-
-function normalize(it) {
-  if (!it) return null;
-  return {
-    id: it.id ?? it.productId ?? null,
-    nombre: it.nombre ?? it.name ?? "Producto",
-    precio: toNumber(it.precio ?? it.price ?? 0),
-    cantidad: toNumber(it.cantidad ?? it.qty ?? 1),
-    imagen: it.imagen ?? it.img ?? "",
-    talla: it.talla ?? it.size ?? "Única",
-    color: it.color ?? "Único",
-  };
-}
-
-function readRaw() {
-  try {
-    const v = localStorage.getItem(KEY);
-    const parsed = JSON.parse(v || "[]");
-    if (Array.isArray(parsed)) return parsed;
-    if (parsed && Array.isArray(parsed.items)) return parsed.items;
-  } catch (_) {}
-  return [];
-}
-
-function loadCart() {
-  return readRaw().map(normalize).filter(Boolean);
-}
-
-function saveCart(arr) {
-  localStorage.setItem(KEY, JSON.stringify(arr));
-  // Notifica (por si quieres escuchar en el Header y refrescar el contador)
-  window.dispatchEvent(new CustomEvent("cart:updated", { detail: arr }));
-}
-
 export default function Carrito() {
-  const [cart, setCart] = useState([]);
+  const [items, setItems] = useState(() => getCart());
 
-  // Cargar carrito al montar
+  // Si el carrito cambia en otra pestaña o desde otra vista, sincroniza.
   useEffect(() => {
-    setCart(loadCart());
+    const sync = () => setItems(getCart());
+    window.addEventListener("cart:updated", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("cart:updated", sync);
+      window.removeEventListener("storage", sync);
+    };
   }, []);
 
-  // Totales derivados
-  const { total, unidades } = useMemo(() => {
-    const t = cart.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
-    const u = cart.reduce((acc, p) => acc + p.cantidad, 0);
-    return { total: t, unidades: u };
-  }, [cart]);
+  const { cantidad, total, totalCLP } = useMemo(() => getCartTotals(), [items]);
 
-  // Acciones
-  const inc = (idx) => {
-    const next = [...cart];
-    next[idx].cantidad += 1;
-    saveCart(next);
-    setCart(next);
+  // 👇 centralizamos escritura para evitar dobles guardados
+  const update = (next) => {
+    setItems(next);
+    setCart(next); // dispara cart:updated
   };
 
-  const dec = (idx) => {
-    const next = [...cart];
-    next[idx].cantidad -= 1;
-    if (next[idx].cantidad <= 0) next.splice(idx, 1);
-    saveCart(next);
-    setCart(next);
-  };
+  const inc = (idx) =>
+    update(items.map((it, i) => (i === idx ? { ...it, cantidad: it.cantidad + 1 } : it)));
 
-  const del = (idx) => {
-    const next = [...cart];
-    next.splice(idx, 1);
-    saveCart(next);
-    setCart(next);
-  };
+  const dec = (idx) =>
+    update(
+      items
+        .map((it, i) => (i === idx ? { ...it, cantidad: it.cantidad - 1 } : it))
+        .filter((it) => it.cantidad > 0)
+    );
+
+  const del = (idx) => update(items.filter((_, i) => i !== idx));
 
   const checkout = () => {
-    if (!cart.length) {
+    if (!items.length) {
       alert("Tu carrito está vacío");
       return;
     }
-    alert("Gracias por tu compra 🛍️ (aquí iría la integración con pago)");
-    localStorage.removeItem(KEY);
-    saveCart([]); // dispara evento
-    setCart([]);
+    alert(`Gracias por tu compra 🛍️\nTotal: ${totalCLP}`);
+    update([]); // guarda y emite evento => header queda en 0
   };
 
   return (
-    <main className="cart-shell">
-      <div className="cart-card">
-        <h2 className="mb-3">🛒 Tu carrito</h2>
+    <main className="productos-page py-5">
+      <div className="container">
+        <h2 className="mb-4">Tu carrito</h2>
 
-        {/* Estado vacío / lista */}
-        {!cart.length ? (
-          <p className="muted">Tu carrito está vacío.</p>
+        {items.length === 0 ? (
+          <div className="alert alert-info bg-dark text-white border-secondary">
+            Tu carrito está vacío.
+          </div>
         ) : (
-          <div id="cartItems">
-            {cart.map((p, i) => (
-              <div key={`${p.id}-${i}`} className="cart-item">
-                <div className="d-flex align-items-center gap-3">
-                  {!!p.imagen && (
-                    <img src={p.imagen} alt={p.nombre} width={70} height={70} />
-                  )}
-                  <div>
-                    <h6 className="m-0">{p.nombre}</h6>
-                    <small className="text-muted">
-                      Talla: {p.talla} • Color: {p.color}
-                    </small>
-                    <br />
-                    <small>
-                      ${CLP.format(p.precio)} x {p.cantidad}
-                    </small>
+          <>
+            {items.map((p, i) => (
+              <div key={`${p.id}-${p.talla}-${p.color}-${i}`} className="card mb-3 p-3">
+                <div className="row g-3 align-items-center">
+                  <div className="col-3 col-md-2">
+                    {p.imagen && <img src={p.imagen} alt={p.nombre} className="img-fluid rounded" />}
                   </div>
-                </div>
-
-                <div className="d-flex align-items-center">
-                  <button
-                    className="btn btn-sm btn-outline-secondary me-2"
-                    onClick={() => dec(i)}
-                    aria-label="Disminuir"
-                  >
-                    -
-                  </button>
-                  <button
-                    className="btn btn-sm btn-outline-secondary me-2"
-                    onClick={() => inc(i)}
-                    aria-label="Aumentar"
-                  >
-                    +
-                  </button>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => del(i)}
-                  >
-                    Eliminar
-                  </button>
+                  <div className="col">
+                    <h6 className="mb-1">{p.nombre}</h6>
+                    <div className="small text-muted">Talla: {p.talla} · Color: {p.color}</div>
+                    <div className="small">Precio: ${CLP.format(p.precio)}</div>
+                  </div>
+                  <div className="col-auto d-flex align-items-center">
+                    <button className="btn btn-sm btn-outline-light me-2" onClick={() => dec(i)}>-</button>
+                    <span className="text-white">{p.cantidad}</span>
+                    <button className="btn btn-sm btn-outline-light ms-2" onClick={() => inc(i)}>+</button>
+                  </div>
+                  <div className="col-auto">
+                    <button className="btn btn-sm btn-danger" onClick={() => del(i)}>Eliminar</button>
+                  </div>
                 </div>
               </div>
             ))}
-          </div>
+
+            <div className="d-flex justify-content-between align-items-center mt-4">
+              <h4>Total: {totalCLP} <small className="text-muted">({cantidad} unid.)</small></h4>
+              <button className="btn btn-primary" onClick={checkout}>Finalizar compra</button>
+            </div>
+          </>
         )}
-
-        <div className="d-flex justify-content-between align-items-center mt-3">
-          <h4>
-            Total: ${CLP.format(total)}{" "}
-            <small className="text-muted">({unidades} unid.)</small>
-          </h4>
-          <button id="checkoutBtn" className="btn btn-success" onClick={checkout}>
-            Finalizar compra
-          </button>
-        </div>
       </div>
-
-      {/* Estilos locales (puedes moverlos a tu CSS global) */}
-      <style>{`
-        .cart-shell{ max-width:980px; margin:40px auto; }
-        .cart-card{ background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 20px rgba(0,0,0,0.25); }
-        .cart-item{ display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #ffffff22; padding:12px 0; }
-        .cart-item:last-child{ border-bottom:0; }
-        .cart-item img{ width:70px; height:70px; object-fit:cover; border-radius:10px; }
-        .muted{ color:#000; }
-        /* Fondo de esta vista solo si quieres replicar el original */
-        body { background:#000000; }
-      `}</style>
     </main>
   );
 }

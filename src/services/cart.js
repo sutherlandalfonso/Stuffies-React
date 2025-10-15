@@ -1,3 +1,4 @@
+// src/services/cart.js
 import { productos } from "./productos";
 import { getStock, decStock, formatTallaLabel } from "./inventory";
 
@@ -7,9 +8,13 @@ const CLP = new Intl.NumberFormat("es-CL");
 export function getCart() {
   return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
 }
+
+// 👇 clave: emitir un evento cada vez que se guarde
 export function setCart(arr) {
   localStorage.setItem(CART_KEY, JSON.stringify(arr));
+  window.dispatchEvent(new CustomEvent("cart:updated", { detail: getCartTotals() }));
 }
+
 export function getCartTotals() {
   const cart = getCart();
   const cantidad = cart.reduce((a, i) => a + (Number(i.cantidad) || 0), 0);
@@ -28,9 +33,7 @@ export function addToCart({ id, talla = null, color = null, cantidad = 1 }) {
       throw new Error(`La talla ${formatTallaLabel(p, tallaUsar)} está agotada en "${p.nombre}".`);
     }
     const ok = decStock(p.id, tallaUsar, cantidad);
-    if (!ok) {
-      throw new Error(`No hay stock suficiente de talla ${formatTallaLabel(p, tallaUsar)}.`);
-    }
+    if (!ok) throw new Error(`No hay stock suficiente de talla ${formatTallaLabel(p, tallaUsar)}.`);
   }
 
   const item = {
@@ -50,6 +53,6 @@ export function addToCart({ id, talla = null, color = null, cantidad = 1 }) {
   if (idx >= 0) cart[idx].cantidad += item.cantidad;
   else cart.push(item);
 
-  setCart(cart);
+  setCart(cart);               // ✅ guarda + emite evento
   return getCartTotals();
 }
