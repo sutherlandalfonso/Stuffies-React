@@ -319,7 +319,7 @@ footer{
   min-height:100vh;
 }
 
-.detalle-page .text-secondary{ color:#ddd !important; }  
+.detalle-page .text-secondary{ color:#ddd !important; } 
 /* === FOOTER OSCURO === */
 .footer-dark {
   background-color: #000;
@@ -379,6 +379,7 @@ footer{
   padding-top: 1rem;
   text-align: center;
 }
+
 
 
 
