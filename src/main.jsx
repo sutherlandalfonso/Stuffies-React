@@ -1,17 +1,19 @@
 // src/main.jsx
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import App from "./App.jsx";
+import { createRoot } from "react-dom/client";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 
-import "bootswatch/dist/morph/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "./assets/css/styles.css"; // tu CSS global
+// 👇 usa la extensión correcta (.jsx) y la ruta exacta
+import { publicRoutes } from "./routes/public.jsx";
+import { adminRoutes } from "./routes/admin.jsx";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
+import "./assets/css/styles.css";
+
+const router = createBrowserRouter([
+  ...publicRoutes,
+  ...adminRoutes,
+  { path: "*", element: <Navigate to="/" replace /> },
+]);
+
+createRoot(document.getElementById("root")).render(
+  <RouterProvider router={router} />
 );
