@@ -64,7 +64,7 @@
 
 /* ============ HEADER: alineado y chip para "Cerrar sesión" ============ */
 .admin-shell .admin-header{
-  background: var(--cx-surface, #9b4b4b);
+  background: var(--cx-surface, #fff);
   border: 1px solid var(--cx-border, rgba(15,23,42,.08));
   border-radius: 16px;
   box-shadow: var(--cx-shadow-soft, 0 10px 24px rgba(2,6,23,.06));
