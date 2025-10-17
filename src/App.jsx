@@ -10,6 +10,7 @@ import Blogs from "./pages/Blogs.jsx";
 import Nosotros from "./pages/Nosotros.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Login from "./pages/Login.jsx";
+import Registro from "./pages/Registro.jsx";
 import Carrito from "./pages/Carrito.jsx";
 
 // Admin (solo productos)
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="nosotros" element={<Nosotros />} />
         <Route path="contacto" element={<Contacto />} />
         <Route path="login" element={<Login />} />
+        <Route path="registro" element={<Registro />} />
         <Route path="carrito" element={<Carrito />} />
       </Route>
 

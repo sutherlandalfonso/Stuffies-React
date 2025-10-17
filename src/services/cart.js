@@ -1,59 +1,105 @@
 // src/services/cart.js
-import { productos } from "./productos";
-import { getStock, decStock, formatTallaLabel } from "./inventory";
+// Carrito compatible con Productos.jsx y DetalleProducto.jsx
 
+const KEY = "carrito";
 
-const CART_KEY = "carrito";
+// ---------- Utils ----------
 const CLP = new Intl.NumberFormat("es-CL");
 
-export function getCart() {
-  return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+function toNumber(v) {
+  if (typeof v === "number") return v;
+  if (typeof v !== "string") return Number(v) || 0;
+  const cleaned = v.replace(/\./g, "").replace(/\s/g, "").replace(",", ".");
+  const n = Number(cleaned);
+  return isNaN(n) ? 0 : n;
 }
 
-// 👇 clave: emitir un evento cada vez que se guarde
+function normalize(it) {
+  if (!it) return null;
+  return {
+    id: it.id ?? null,
+    nombre: it.nombre ?? it.name ?? "Producto",
+    precio: toNumber(it.precio ?? it.price ?? 0),
+    cantidad: toNumber(it.cantidad ?? it.qty ?? 1),
+    imagen: it.imagen ?? it.img ?? "",
+    talla: it.talla ?? it.size ?? "Única",
+    color: it.color ?? "Único",
+  };
+}
+
+// ---------- Core ----------
+export function getCart() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) || "[]");
+    if (Array.isArray(raw)) return raw.map(normalize).filter(Boolean);
+    // por compatibilidad si alguna vez guardaste {items:[...]}
+    if (raw && Array.isArray(raw.items)) return raw.items.map(normalize).filter(Boolean);
+  } catch (_) {}
+  return [];
+}
+
 export function setCart(arr) {
-  localStorage.setItem(CART_KEY, JSON.stringify(arr));
-  window.dispatchEvent(new CustomEvent("cart:updated", { detail: getCartTotals() }));
+  localStorage.setItem(KEY, JSON.stringify(arr));
+  // notificar a UI (Header, etc.)
+  window.dispatchEvent(new Event("cart:updated"));
 }
 
 export function getCartTotals() {
   const cart = getCart();
-  const cantidad = cart.reduce((a, i) => a + (Number(i.cantidad) || 0), 0);
-  const total = cart.reduce((a, i) => a + (Number(i.precio) * (Number(i.cantidad) || 0)), 0);
-  return { cantidad, total, totalCLP: "$" + CLP.format(total) };
+  let total = 0;
+  let cantidad = 0;
+  cart.forEach((i) => {
+    total += (i.precio || 0) * (i.cantidad || 0);
+    cantidad += i.cantidad || 0;
+  });
+  return {
+    cantidad,
+    total,
+    totalCLP: CLP.format(total),
+  };
 }
 
-export function addToCart({ id, talla = null, color = null, cantidad = 1 }) {
-  const p = productos.find((x) => Number(x.id) === Number(id));
-  if (!p) throw new Error("Producto no encontrado");
+/**
+ * Añade un item al carrito; si existe el mismo (id+talla+color) suma cantidades.
+ * @param {Object} item {id, nombre, precio, imagen, cantidad, talla, color}
+ */
+export function addToCart(item) {
+  const cart = getCart();
+  const it = normalize(item);
+  if (!it || !it.id) throw new Error("Item inválido");
 
-  let tallaUsar = talla || (Array.isArray(p.tallas) ? String(p.tallas[0]) : "Única");
+  // Buscar coincidencia por id + talla + color
+  const idx = cart.findIndex(
+    (x) => x.id === it.id && String(x.talla) === String(it.talla) && String(x.color) === String(it.color)
+  );
 
-  if (Array.isArray(p.tallas) && p.tallas.length) {
-    if (getStock(p.id, tallaUsar) <= 0) {
-      throw new Error(`La talla ${formatTallaLabel(p, tallaUsar)} está agotada en "${p.nombre}".`);
-    }
-    const ok = decStock(p.id, tallaUsar, cantidad);
-    if (!ok) throw new Error(`No hay stock suficiente de talla ${formatTallaLabel(p, tallaUsar)}.`);
+  if (idx >= 0) {
+    cart[idx].cantidad = toNumber(cart[idx].cantidad) + toNumber(it.cantidad || 1);
+  } else {
+    cart.push({ ...it, cantidad: toNumber(it.cantidad || 1) });
   }
 
-  const item = {
-    id: p.id,
-    nombre: p.nombre,
-    precio: p.precio,
-    imagen: p.imagen,
-    talla: tallaUsar,
-    color: color || (p.colores && p.colores[0]) || "Único",
-    cantidad: cantidad || 1,
-  };
+  setCart(cart);
+  return getCartTotals();
+}
 
+// Opcionales por si luego los quieres usar en la página Carrito:
+export function updateQty(index, qty) {
   const cart = getCart();
-  const idx = cart.findIndex(
-    (x) => x.id === item.id && x.talla === item.talla && x.color === item.color
-  );
-  if (idx >= 0) cart[idx].cantidad += item.cantidad;
-  else cart.push(item);
+  if (!cart[index]) return getCartTotals();
+  cart[index].cantidad = Math.max(1, toNumber(qty));
+  setCart(cart);
+  return getCartTotals();
+}
 
-  setCart(cart);               // ✅ guarda + emite evento
+export function removeItem(index) {
+  const cart = getCart();
+  if (cart[index]) cart.splice(index, 1);
+  setCart(cart);
+  return getCartTotals();
+}
+
+export function clearCart() {
+  setCart([]);
   return getCartTotals();
 }

@@ -394,3 +394,4 @@ footer{
   .admin-sidebar { position: static; }
 }
 
+.dropdown-menu { z-index: 2000; }
