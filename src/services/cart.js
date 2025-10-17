@@ -2,6 +2,7 @@
 import { productos } from "./productos";
 import { getStock, decStock, formatTallaLabel } from "./inventory";
 
+
 const CART_KEY = "carrito";
 const CLP = new Intl.NumberFormat("es-CL");
 

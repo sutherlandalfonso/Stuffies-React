@@ -1,8 +1,8 @@
 export const productos = [
-  { id: 1, nombre: "HOODIE BOXIFIT WHITE DICE V2", precio: 39990, categoria: "polerones",
+  { id: 1, nombre: "Hoodie Boxy Fit White Dice V2", precio: 39990, categoria: "polerones",
     imagen: "https://stuffiesconcept.com/cdn/shop/files/WhiteDice1.png?v=1753404231&width=600",
     imagenHover: "https://stuffiesconcept.com/cdn/shop/files/WhiteDice2.png?v=1753404231&width=1426",
-    descripcion: "POLERÓN BOXIFIT AZUL MARINO 'WHITE DICE'.",
+    descripcion: "Poleron Boxy Fit White Dice V2.",
     tallas: ["S","M","L","XL"], colores: ["azul"], destacado: true },
 
   { id: 2, nombre: "Star Player 'Blue Team' T-Shirt", precio: 10990, categoria: "poleras",
@@ -29,10 +29,10 @@ export const productos = [
     descripcion: "Polera boxy-slim fit negra",
     tallas:["S","M","L","XL"], colores:["Negro"], destacado:true },
 
-  { id: 6, nombre: "HOODIE BOXIFIT RED DICE V2", precio: 32990, categoria: "polerones",
+  { id: 6, nombre: "Hoodie Boxy Fit Black Dice V2", precio: 32990, categoria: "polerones",
     imagen: "https://stuffiesconcept.com/cdn/shop/files/RedDice1.png?v=1753404319&width=600",
     imagenHover: "https://stuffiesconcept.com/cdn/shop/files/RedDice2.png?v=1753404319&width=600",
-    descripcion: "Chaqueta ligera, perfecta para entrenar.",
+    descripcion: "Poleron Boxy Fit White Dice V2.",
     tallas:["S","M","L","XL"], colores:["Negro"], destacado:true },
 
   { id: 7, nombre: "Star Player 'Black Team' t-shirt", precio: 37990, categoria: "poleras",
@@ -41,16 +41,16 @@ export const productos = [
     descripcion: "La Star Player T-Shirt nace de la unión entre la nostalgia del fútbol clásico y la energía del streetwear actual..",
     tallas:["S","M","L","XL"], colores:["Gris"], destacado:true },
 
-  { id: 8, nombre: "HOODIE BOXIFIT PINK DICE V2", precio: 35990, categoria: "polerones",
+  { id: 8, nombre: "Hoodie Boxy Fit Brown Dice V2.", precio: 35990, categoria: "polerones",
     imagen: "https://stuffiesconcept.com/cdn/shop/files/PinkDice1.png?v=1753404299&width=600",
     imagenHover: "https://stuffiesconcept.com/cdn/shop/files/PinkDice2.png?v=1753404299&width=600",
-    descripcion: "POLERÓN BOXIFIT BROWN 'PINK DICE'",
+    descripcion: " Poleron Boxy Fit Brown Dice V2.",
     tallas:["S","M","L","XL"], colores:["cafe"], destacado:false },
 
-  { id: 9, nombre: "Pantalón Cargo Negro", precio: 22990, categoria: "pantalones",
+  { id: 9, nombre: "Pantalón Jeans Negro", precio: 22990, categoria: "pantalones",
     imagen: "https://i.postimg.cc/85CnPzS6/920c48b5-ab8b-486d-8681-74fd494c0b6e.avif",
     imagenHover: "https://i.postimg.cc/WjzNN7HP/b0435e27-d353-47fa-ade0-7ce8e83fc9b7.avif",
-    descripcion: "Cargo negro con bolsillos laterales y calce relaxed.",
+    descripcion: "Jeans negro con calce relaxed.",
     tallas: ["38","40","42","44","46","48","50","52","54"],
     colores:["Negro"], destacado:false },
 

@@ -68,24 +68,27 @@ export default function Login() {
       "https://i.postimg.cc/qRdn8fDv/LOGO-ESTRELLA-SIMPLE-CON-ESTRELLITAS.png";
 
     localStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify({
-        user: found.user,
-        name: found.name,
-        email: found.email,
-        avatar,
-        role: found.role || "cliente",
-        remember: !!remember,
-      })
-    );
+  SESSION_KEY,
+  JSON.stringify({
+    user: found.user,
+    name: found.name,
+    email: found.email,
+    avatar,
+    role: found.role || "cliente",
+    remember: !!remember,
+  })
+);
 
-    if (found.role === "admin") {
-      showMsg("success", "¡Bienvenido/a admin! Redirigiendo al panel…");
-      setTimeout(() => navigate("/admin"), 500);
-    } else {
-      showMsg("success", `¡Bienvenido/a, ${found.name || found.user}! Redirigiendo…`);
-      setTimeout(() => navigate("/"), 500);
-    }
+// 👇 AVISAR AL HEADER (y a otras pestañas) QUE CAMBIÓ LA SESIÓN
+window.dispatchEvent(new Event("session:updated"));
+
+if (found.role === "admin") {
+  showMsg("success", "¡Bienvenido/a admin! Redirigiendo al panel…");
+  setTimeout(() => navigate("/admin"), 500);
+} else {
+  showMsg("success", `¡Bienvenido/a, ${found.name || found.user}! Redirigiendo…`);
+  setTimeout(() => navigate("/"), 500);
+}
   };
 
   return (
