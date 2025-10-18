@@ -185,6 +185,7 @@ footer{
   .hero .hero-content{padding:3rem 0;}
   .blog-card:hover{transform:none;}
 }
+
 /* === PRODUCTOS (fondo negro y texto claro) === */
 .productos-page {
   background-color: #000;
@@ -192,74 +193,34 @@ footer{
   min-height: 100vh;
   padding-bottom: 3rem;
 }
-
-.productos-page h2 {
-  color: #fff;
-}
-
-.productos-page label {
-  color: #fff;
-}
-
+.productos-page h2 { color: #fff; }
+.productos-page label { color: #fff; }
 .productos-page select {
   background-color: #111;
   color: #fff;
   border: 1px solid #444;
 }
-
 .productos-page .form-select:focus {
   box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.25);
 }
-
-.productos-page .card {
-  background-color: #111;
-  color: #fff;
-  border: 1px solid #222;
-}
-
-.productos-page .btn-primary {
-  background-color: #fff;
-  color: #000;
-  border: none;
-}
-
-.productos-page .btn-primary:hover {
-  background-color: #ccc;
-}
-
-.featured-products h2 {
-  color: #fff;
-  margin-bottom: 2rem;
-}
-
-.featured-products .card {
-  background-color: #111;
-  color: #fff;
-  border: 1px solid #222;
-}
-
+.productos-page .card { background-color: #111; color: #fff; border: 1px solid #222; }
+.productos-page .btn-primary { background-color: #fff; color: #000; border: none; }
+.productos-page .btn-primary:hover { background-color: #ccc; }
+.featured-products h2 { color: #fff; margin-bottom: 2rem; }
+.featured-products .card { background-color: #111; color: #fff; border: 1px solid #222; }
 .featured-products .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 0 20px rgba(255,255,255,0.1);
 }
+.featured-products .btn-primary { background-color: #fff; color: #000; }
+.featured-products .btn-primary:hover { background-color: #ccc; color: #000; }
 
-.featured-products .btn-primary {
-  background-color: #fff;
-  color: #000;
-}
-
-.featured-products .btn-primary:hover {
-  background-color: #ccc;
-  color: #000;
-}
 /* === DETALLE DE PRODUCTO (fondo negro y estilo oscuro) === */
 .detalle-page {
   background-color: #000;        /* Fondo negro del cuerpo del detalle */
   color: #fff !important;        /* Texto blanco por defecto */
   min-height: 100vh;             /* Asegura alto mínimo de la pantalla */
 }
-
-/* Tipografías y textos dentro del detalle */
 .detalle-page h1,
 .detalle-page h2,
 .detalle-page h3,
@@ -268,133 +229,195 @@ footer{
 .detalle-page h6,
 .detalle-page p,
 .detalle-page label,
-.detalle-page span {
-  color: #fff !important;
-}
-
-/* Imagen del producto */
-.detalle-page img {
-  border-radius: 8px;
-  box-shadow: 0 0 20px rgba(255,255,255,0.1);
-}
-
-/* Selects/Tallas */
-.detalle-page .form-select {
-  background-color: #111;
-  color: #fff;
-  border: 1px solid #333;
-}
-.detalle-page .form-select:focus {
-  box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.25);
-  border-color: #555;
-}
-
-/* Badges de colores */
-.detalle-page .badge.bg-secondary {
-  background-color: #444 !important;
-  color: #fff;
-}
-
-/* Botones */
-.detalle-page .btn-primary {
-  background-color: #fff;
-  color: #000;
-  border: none;
-}
-.detalle-page .btn-primary:hover {
-  background-color: #ccc;
-  color: #000;
-}
-.detalle-page .btn-outline-light {
-  border: 1px solid #fff;
-  color: #fff;
-}
-.detalle-page .btn-outline-light:hover {
-  background-color: #fff;
-  color: #000;
-}
-.detalle-page{
-  background:#000;         
-  color:#fff !important;
-  min-height:100vh;
-}
-
+.detalle-page span { color: #fff !important; }
+.detalle-page img { border-radius: 8px; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+.detalle-page .form-select { background-color: #111; color: #fff; border: 1px solid #333; }
+.detalle-page .form-select:focus { box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.25); border-color: #555; }
+.detalle-page .badge.bg-secondary { background-color: #444 !important; color: #fff; }
+.detalle-page .btn-primary { background-color: #fff; color: #000; border: none; }
+.detalle-page .btn-primary:hover { background-color: #ccc; color: #000; }
+.detalle-page .btn-outline-light { border: 1px solid #fff; color: #fff; }
+.detalle-page .btn-outline-light:hover { background-color: #fff; color: #000; }
 .detalle-page .text-secondary{ color:#ddd !important; } 
-/* === FOOTER OSCURO === */
-.footer-dark {
-  background-color: #000;
-  color: #fff;
-}
 
+/* === FOOTER OSCURO === */
+.footer-dark { background-color: #000; color: #fff; }
 .footer-dark h3,
 .footer-dark h5,
 .footer-dark p,
 .footer-dark a,
-.footer-dark small {
-  color: #fff !important;
-}
-
-.footer-dark a:hover {
-  color: #ccc !important;
-}
-
-.footer-logo {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 6px rgba(255,255,255,0.4));
-}
-
-.footer-input {
-  background-color: #111;
-  border: 1px solid #333;
-  color: #fff;
-}
-
-.footer-input::placeholder {
-  color: #aaa;
-}
-
-.footer-input:focus {
-  border-color: #555;
-  box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.2);
-}
-
-.footer-btn {
-  background-color: #fff;
-  color: #000;
-  font-weight: 600;
-  border: none;
-  transition: all 0.3s ease;
-}
-
-.footer-btn:hover {
-  background-color: #ccc;
-  color: #000;
-}
-
-.footer-bottom {
-  border-top: 1px solid #222;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  text-align: center;
-}
-
+.footer-dark small { color: #fff !important; }
+.footer-dark a:hover { color: #ccc !important; }
+.footer-logo { width: 40px; height: 40px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(255,255,255,0.4)); }
+.footer-input { background-color: #111; border: 1px solid #333; color: #fff; }
+.footer-input::placeholder { color: #aaa; }
+.footer-input:focus { border-color: #555; box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.2); }
+.footer-btn { background-color: #fff; color: #000; font-weight: 600; border: none; transition: all 0.3s ease; }
+.footer-btn:hover { background-color: #ccc; color: #000; }
+.footer-bottom { border-top: 1px solid #222; margin-top: 1.5rem; padding-top: 1rem; text-align: center; }
 
 /* ===== Admin theme ===== */
 .admin-shell { min-height: 100vh; display:flex; flex-direction:column; background:#0b0b0b; }
 .admin-body  { flex:1; }
 .admin-grid  { display:grid; grid-template-columns: 260px 1fr; gap:16px; }
 .admin-main  { border-radius:12px; }
-
 .admin-sidebar { position: sticky; top: 12px; height: fit-content; }
-
 @media (max-width: 992px) {
   .admin-grid { grid-template-columns: 1fr; }
   .admin-sidebar { position: static; }
 }
-
 .dropdown-menu { z-index: 2000; }
 
+/* =========================================================
+   OVERRIDES — PÁGINAS OSCURAS (Nosotros / Blogs / Contacto)
+   SIN CAMBIAR TU JSX — usa :has() para detectar cada página
+========================================================= */
 
+/* Fondo negro del <main> para esas páginas */
+main:has(.cardx),          /* Nosotros */
+main:has(.blogs-list),     /* Blogs */
+main:has(#formContacto) {  /* Contacto */
+  background:#000 !important;
+  color:#fff !important;
+}
+
+/* Quitar fondos blancos internos de contenedores/secciones */
+main:has(.cardx) .container,
+main:has(.blogs-list) .container,
+main:has(#formContacto) .container,
+main:has(.cardx) section,
+main:has(.blogs-list) section,
+main:has(#formContacto) section{
+  background:transparent !important;
+}
+
+/* Mantener IMAGEN del hero + overlay para legibilidad */
+
+/* --- HERO de NOSOTROS --- */
+main:has(.cardx) .hero{
+  position:relative !important;
+  background:
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+    url("https://i.postimg.cc/Dz8pthBy/448330999-1571729430349986-3007445543010160619-n.jpg")
+    center/cover no-repeat !important;
+}
+
+/* --- HERO de BLOGS --- */
+main:has(.blogs-list) .hero{
+  position:relative !important;
+  background:
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+    url("https://i.postimg.cc/Dz8pthBy/448330999-1571729430349986-3007445543010160619-n.jpg")
+    center/cover no-repeat !important;
+}
+
+/* --- HERO de CONTACTO --- */
+main:has(#formContacto) .hero{
+  position:relative !important;
+  background:
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+    url("https://i.postimg.cc/PxD35Mgg/DADOS.png")
+    center/cover no-repeat !important;
+}
+
+/* Tarjeta genérica que usas en Nosotros/Contacto */
+.cardx{
+  background:#111 !important;
+  color:#fff !important;
+  border:1px solid #222 !important;
+  border-radius:12px !important;
+  padding:1.5rem !important;
+  box-shadow:0 8px 24px rgba(0,0,0,.45) !important;
+}
+
+/* BLOGS: cards y badges en oscuro dentro de esa página */
+main:has(.blogs-list) .blog-card{
+  background:#111 !important;
+  color:#fff !important;
+  border:1px solid #222 !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.5) !important;
+}
+main:has(.blogs-list) .blog-card .badge{
+  background:#333 !important;
+  color:#fff !important;
+  border:1px solid #444 !important;
+}
+
+/* CONTACTO: inputs/selects/textarea en oscuro */
+main:has(#formContacto) .form-control,
+main:has(#formContacto) .form-select,
+main:has(#formContacto) input,
+main:has(#formContacto) textarea,
+main:has(#formContacto) select{
+  background:#111 !important;
+  color:#fff !important;
+  border:1px solid #333 !important;
+}
+main:has(#formContacto) .form-control::placeholder,
+main:has(#formContacto) textarea::placeholder{ color:#aaa !important; }
+main:has(#formContacto) .form-control:focus,
+main:has(#formContacto) .form-select:focus{
+  border-color:#555 !important;
+  box-shadow:0 0 0 .2rem rgba(255,255,255,.15) !important;
+}
+
+/* Botones outline en oscuro para Nosotros/Contacto */
+main:has(.cardx) .btn-outline-dark,
+main:has(#formContacto) .btn-outline-dark{
+  border-color:#fff !important;
+  color:#fff !important;
+}
+main:has(.cardx) .btn-outline-dark:hover,
+main:has(#formContacto) .btn-outline-dark:hover{
+  background:#fff !important;
+  color:#000 !important;
+}
+
+/* Títulos y textos en esas páginas */
+main:has(.cardx) h1, main:has(.cardx) h2, main:has(.cardx) h3,
+main:has(.blogs-list) h1, main:has(.blogs-list) h2, main:has(.blogs-list) h3,
+main:has(#formContacto) h1, main:has(#formContacto) h2, main:has(#formContacto) h3{
+  color:#fff !important;
+}
+main:has(.blogs-list) p,
+main:has(.cardx) p,
+main:has(#formContacto) p{ color:#ddd !important; }
+
+/* =========================================================
+   MEJORA — BOTONES DEL FONDO ANIMADO (landing-hero)
+   Más grandes, blancos brillantes (glow) y legibles
+========================================================= */
+.landing-hero .btn-home,
+.landing-hero .btn-productos{
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #000 !important;
+  border: 2px solid #fff !important;
+  font-weight: 800 !important;
+  font-size: 1.2rem !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase;
+  padding: 14px 36px !important;
+  border-radius: 50px !important;
+  box-shadow:
+    0 0 25px rgba(255, 255, 255, 0.8),
+    0 0 40px rgba(255, 255, 255, 0.5),
+    inset 0 0 8px rgba(255, 255, 255, 0.6);
+  transition: all 0.25s ease !important;
+}
+.landing-hero .btn-home:hover,
+.landing-hero .btn-productos:hover{
+  transform: scale(1.08);
+  box-shadow:
+    0 0 35px rgba(255, 255, 255, 1),
+    0 0 60px rgba(255, 255, 255, 0.7),
+    inset 0 0 12px rgba(255, 255, 255, 0.9);
+  background: #fff !important;
+  color: #000 !important;
+}
+.landing-hero .btn-container {
+  z-index: 5;
+  position: relative;
+}
+.product-card img { transition: transform .35s ease, opacity .35s ease; }
+.product-card:hover img { transform: scale(1.05); opacity: .92; }
 
