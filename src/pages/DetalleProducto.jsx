@@ -1,12 +1,12 @@
 // src/pages/DetalleProducto.jsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { productos } from "../services/productos.js";
-import { addToCart } from "../services/cart.js";   // <-- usa tu módulo
+import { getLiveById, getStockPorTalla } from "../services/inventory.js";
+import { addToCart } from "../services/cart.js";
 
 export default function DetalleProducto() {
   const { id } = useParams();
-  const producto = useMemo(() => productos.find(p => p.id === Number(id)), [id]);
+  const producto = useMemo(() => getLiveById(id), [id]);
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, []);
 
@@ -27,10 +27,17 @@ export default function DetalleProducto() {
   );
   const colorDefault = (producto.colores && producto.colores[0]) || "Único";
 
-  const onAdd = async () => {
+  const stockMap = getStockPorTalla(producto.id) || {};
+  const stockTalla = Number(stockMap[talla] || 0);
+  const sinStockTalla = stockTalla <= 0;
+
+  const onAdd = () => {
+    if (sinStockTalla) {
+      alert("No hay stock en esta talla");
+      return;
+    }
     try {
       const res = addToCart({ id: producto.id, talla, color: colorDefault, cantidad: 1 });
-      // opcional: toast o alerta simple
       alert(`Añadido. Total: ${res.totalCLP} (${res.cantidad} ítems)`);
     } catch (err) {
       alert(err?.message || "No se pudo añadir al carrito");
@@ -69,6 +76,9 @@ export default function DetalleProducto() {
                 >
                   {producto.tallas.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
+                <small className={`d-block mt-2 ${sinStockTalla ? "text-danger" : "text-success"}`}>
+                  {sinStockTalla ? "Sin stock" : `Stock disponible: ${stockTalla}`}
+                </small>
               </div>
             )}
 
@@ -80,7 +90,9 @@ export default function DetalleProducto() {
             )}
 
             <div className="d-flex gap-3 mt-4">
-              <button className="btn btn-primary" onClick={onAdd}>Añadir al carrito</button>
+              <button className="btn btn-primary" onClick={onAdd} disabled={sinStockTalla}>
+                {sinStockTalla ? "Sin stock" : "Añadir al carrito"}
+              </button>
               <Link to="/productos" className="btn btn-outline-light">Volver</Link>
             </div>
           </div>
