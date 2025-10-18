@@ -35,7 +35,7 @@ export default function Nosotros() {
 
               <div className="col-md-6 text-center">
                 <img
-                  src="https://i.postimg.cc/qRdn8fDv/LOGO-ESTRELLA-SIMPLE-CON-ESTRELLITAS.png"
+                  src="https://i.postimg.cc/R0phZ77L/ESTRELLA-BLANCA.png"
                   alt="Stuffies"
                   className="img-fluid"
                 />

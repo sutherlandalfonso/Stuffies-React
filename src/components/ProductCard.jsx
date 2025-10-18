@@ -1,3 +1,4 @@
+// src/components/ProductCard.jsx
 import { Link } from "react-router-dom";
 import { addToCart } from "../services/cart.js";
 
@@ -33,7 +34,8 @@ export default function ProductCard({ product }) {
           ${new Intl.NumberFormat("es-CL").format(precio)}
         </div>
         <div className="d-grid gap-2 mt-auto">
-          <Link to={`/detalle/${id}`} className="btn btn-outline-dark">Ver detalle</Link>
+          {/* ✅ Ruta corregida */}
+          <Link to={`/detalle-producto/${id}`} className="btn btn-outline-dark">Ver detalle</Link>
           <button className="btn btn-primary" onClick={onAdd}>Añadir</button>
         </div>
       </div>

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+// src/pages/Productos.jsx
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { productos } from "../services/productos.js";
 import { addToCart } from "../services/cart.js";
@@ -6,7 +7,6 @@ import { addToCart } from "../services/cart.js";
 const CLP = new Intl.NumberFormat("es-CL");
 
 export default function Productos() {
-  // (opcional) estado local para filtros demo
   const [categoria, setCategoria] = useState("todos");
   const [precioMax, setPrecioMax] = useState(60000);
 
@@ -14,11 +14,13 @@ export default function Productos() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const dataFiltrada = productos.filter((p) => {
-    const okCat = categoria === "todos" ? true : p.categoria === categoria;
-    const okPrecio = Number(p.precio) <= Number(precioMax);
-    return okCat && okPrecio;
-  });
+  const dataFiltrada = useMemo(() => {
+    return productos.filter((p) => {
+      const okCat = categoria === "todos" ? true : p.categoria === categoria;
+      const okPrecio = Number(p.precio) <= Number(precioMax);
+      return okCat && okPrecio;
+    });
+  }, [categoria, precioMax]);
 
   return (
     <main className="productos-page py-5">
@@ -75,10 +77,23 @@ export default function Productos() {
 
 function CardProducto({ p }) {
   const [img, setImg] = useState(p.imagen);
+
+  // ✅ Calcula stock total (suma de stockPorTalla) o usa p.stock si existiera
+  const stockTotal = useMemo(() => {
+    if (p.stockPorTalla && typeof p.stockPorTalla === "object") {
+      return Object.values(p.stockPorTalla).reduce((acc, n) => acc + Number(n || 0), 0);
+    }
+    if (typeof p.stock === "number") return p.stock;
+    return null; // desconocido
+  }, [p.stockPorTalla, p.stock]);
+
+  const sinStock = stockTotal !== null && stockTotal <= 0;
+
   const primeraTalla = (p.tallas && p.tallas[0]) || "Única";
   const primerColor = (p.colores && p.colores[0]) || "Único";
 
   const onAdd = () => {
+    if (sinStock) return;
     const res = addToCart({
       id: p.id,
       nombre: p.nombre,
@@ -94,7 +109,7 @@ function CardProducto({ p }) {
 
   return (
     <div className="card product-card h-100">
-      {/* Hacer clic en imagen o título abre el detalle */}
+      {/* Click en imagen/título → detalle */}
       <Link
         to={`/detalle-producto/${p.id}`}
         className="text-decoration-none text-reset"
@@ -115,7 +130,18 @@ function CardProducto({ p }) {
         >
           <h6 className="card-title">{p.nombre}</h6>
         </Link>
-        <p className="card-text mb-3">${CLP.format(p.precio)}</p>
+
+        <p className="card-text mb-2">${CLP.format(p.precio)}</p>
+
+        {/* ✅ Muestra stock */}
+        {stockTotal !== null && (
+          <span
+            className={`badge ${sinStock ? "text-bg-danger" : "text-bg-secondary"} align-self-start mb-2`}
+            title={p.stockPorTalla ? "Suma del stock por talla" : "Stock total"}
+          >
+            {sinStock ? "Agotado" : `Stock: ${stockTotal}`}
+          </span>
+        )}
 
         <div className="mt-auto d-flex flex-column gap-2">
           <Link
@@ -125,8 +151,15 @@ function CardProducto({ p }) {
             Ver detalle
           </Link>
 
-          <button className="btn btn-primary w-100" onClick={onAdd}>
-            Añadir
+          <button
+            className="btn btn-primary w-100"
+            onClick={onAdd}
+            disabled={sinStock}
+            aria-disabled={sinStock}
+            title={sinStock ? "Sin stock disponible" : "Añadir al carrito"}
+            style={sinStock ? { opacity: 0.6, cursor: "not-allowed" } : undefined}
+          >
+            {sinStock ? "Sin stock" : "Añadir"}
           </button>
         </div>
       </div>

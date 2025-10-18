@@ -6,7 +6,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "../assets/css/styles.css";
 
-
 import { productos } from "../services/productos.js";
 import ProductCard from "../components/ProductCard.jsx";
 
@@ -47,7 +46,7 @@ class CardBoundary extends React.Component {
               {this.state.errorMsg || "No se pudo cargar la tarjeta."}
             </div>
             <div className="mt-3 d-flex gap-2">
-              <Link to={`/detalle/${p.id}`} className="btn btn-outline-dark btn-sm w-100">
+              <Link to={`/detalle-producto/${p.id}`} className="btn btn-outline-dark btn-sm w-100">
                 Ver detalles
               </Link>
               <Link to="/productos" className="btn btn-dark btn-sm w-100">
@@ -83,7 +82,7 @@ const SimpleCard = memo(function SimpleCard({ p }) {
           ${new Intl.NumberFormat("es-CL").format(p.precio)}
         </div>
         <div className="mt-auto d-flex gap-2">
-          <Link to={`/detalle/${p.id}`} className="btn btn-outline-dark btn-sm w-100">
+          <Link to={`/detalle-producto/${p.id}`} className="btn btn-outline-dark btn-sm w-100">
             Ver detalles
           </Link>
           <Link to="/productos" className="btn btn-primary btn-sm w-100">
@@ -98,7 +97,16 @@ const SimpleCard = memo(function SimpleCard({ p }) {
 export default function Home() {
   const destacados = productos.filter((p) => p.destacado);
 
-  // Al montar, subir al inicio (como navegación entre páginas HTML)
+  // 1) DEBUG: ver si algún destacado no tiene id
+  useEffect(() => {
+    // Quita este console.table cuando pruebes
+    console.table(destacados.map(p => ({ id: p?.id, nombre: p?.nombre })));
+  }, [destacados]);
+
+  // 2) Evitar renderizar items sin id (evita /detalle-producto/undefined)
+  const destacadosConId = destacados.filter(p => p?.id != null);
+
+  // Al montar, subir al inicio
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, []);
@@ -213,21 +221,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Productos destacados */}
-<section className="featured-products">
-  <div className="container">
-    <h2>Productos Destacados</h2>
-    <div className="row g-4">
-      {destacados.map((p) => (
-        <div key={p.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
-          <ProductCard product={p} />
+      {/* 3) Productos destacados — zIndex para asegurar clics */}
+      <section className="featured-products" style={{ position: "relative", zIndex: 5 }}>
+        <div className="container">
+          <h2>Productos Destacados</h2>
+          <div className="row g-4">
+            {destacadosConId.map((p) => (
+              <div key={p.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
+                {/* Si alguna tarjeta tira error, no rompe el grid */}
+                <CardBoundary product={p}>
+                  <ProductCard product={p} />
+                </CardBoundary>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
-</section>
-
+      </section>
     </main>
   );
-  
 }
