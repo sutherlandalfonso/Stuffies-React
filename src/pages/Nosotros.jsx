@@ -49,14 +49,17 @@ export default function Nosotros() {
                 <h4>Equipo</h4>
                 <ul className="mb-0">
                   <li><strong>Dirección Creativa:</strong> Stuffies Studio</li>
-                  <li><strong>Desarrollo Web:</strong> Estudiantes DUOC</li>
+                  <li><strong>Desarrollo Web:</strong> Estudiantes DUOC UC</li>
                   <li><strong>Marketing:</strong> Comunidad Stuffies</li>
                 </ul>
               </div>
 
               <div className="col-md-6">
                 <h4>Tecnologías</h4>
-                <p className="mb-0">HTML5, CSS, JavaScript, Bootswatch, LocalStorage, Chart.js.</p>
+                <p className="mb-0">
+                  React (con Vite) · React Router DOM · Bootstrap 5 · JavaScript ES6+ · 
+                  LocalStorage · CSS personalizado · Node.js (npm scripts)
+                </p>
               </div>
             </div>
 

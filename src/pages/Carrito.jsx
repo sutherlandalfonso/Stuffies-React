@@ -1,6 +1,7 @@
 // src/pages/Carrito.jsx
 import { useMemo, useState, useEffect } from "react";
-import { getCart, setCart, getCartTotals } from "../services/cart.js";
+import { getCart, clearCart } from "../services/cart.js";
+
 
 const CLP = new Intl.NumberFormat("es-CL");
 
