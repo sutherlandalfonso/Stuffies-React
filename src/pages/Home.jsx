@@ -95,11 +95,15 @@ const SimpleCard = memo(function SimpleCard({ p }) {
 });
 
 export default function Home() {
+  // Debug: confirmar si Home se monta
+  useEffect(() => {
+    console.log("[HOME] montado ✅");
+  }, []);
+
   const destacados = productos.filter((p) => p.destacado);
 
   // 1) DEBUG: ver si algún destacado no tiene id
   useEffect(() => {
-    // Quita este console.table cuando pruebes
     console.table(destacados.map(p => ({ id: p?.id, nombre: p?.nombre })));
   }, [destacados]);
 

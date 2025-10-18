@@ -2,7 +2,6 @@
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 
-// 👇 usa la extensión correcta (.jsx) y la ruta exacta
 import { publicRoutes } from "./routes/public.jsx";
 import { adminRoutes } from "./routes/admin.jsx";
 

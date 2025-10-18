@@ -1,5 +1,5 @@
 // src/App.jsx
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 // Público
 import Layout from "./components/Layout.jsx";
@@ -13,36 +13,48 @@ import Login from "./pages/Login.jsx";
 import Carrito from "./pages/Carrito.jsx";
 import Fondo from "./pages/Fondo.jsx";
 
-// Admin (solo productos)
+// Admin
 import AdminLayout from "./admin/AdminLayout.jsx";
 import AdminProductos from "./admin/pages/Productos.jsx";
 
+// --- DEBUG: muestra la ruta actual en consola (y 1px invisible en pantalla)
+function PathDebug() {
+  const { pathname } = useLocation();
+  console.log("[PATH]", pathname);
+  return <div style={{ position:"fixed", inset:0, pointerEvents:"none", opacity:0 }}>{pathname}</div>;
+}
+
 export default function App() {
   return (
-    <Routes>
-      {/* 🔹 Fondo: pantalla tipo "salvapantallas" SIN Layout */}
-      <Route path="/fondo" element={<Fondo />} />
+    <>
+      <PathDebug />
+      <Routes>
+        {/* Fondo en "/" */}
+        <Route path="/" element={<Fondo />} />
+        <Route path="/Fondo" element={<Navigate to="/" replace />} />
 
-      {/* Sitio público con Layout */}
-      <Route element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="productos" element={<Productos />} />
-        <Route path="detalle-producto/:id" element={<DetalleProducto />} />
-        <Route path="blogs" element={<Blogs />} />
-        <Route path="nosotros" element={<Nosotros />} />
-        <Route path="contacto" element={<Contacto />} />
-        <Route path="login" element={<Login />} />
-        <Route path="carrito" element={<Carrito />} />
-      </Route>
+        {/* Sitio con Layout */}
+        <Route element={<Layout />}>
+          <Route path="home" element={<Home />} />
+          <Route path="productos" element={<Productos />} />
+          <Route path="detalle-producto/:id" element={<DetalleProducto />} />
+          <Route path="blogs" element={<Blogs />} />
+          <Route path="nosotros" element={<Nosotros />} />
+          <Route path="contacto" element={<Contacto />} />
+          <Route path="login" element={<Login />} />
+          <Route path="carrito" element={<Carrito />} />
+          <Route path="inicio" element={<Navigate to="/home" replace />} />
+        </Route>
 
-      {/* Panel de administración */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<Navigate to="productos" replace />} />
-        <Route path="productos" element={<AdminProductos />} />
-      </Route>
+        {/* Admin */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="productos" replace />} />
+          <Route path="productos" element={<AdminProductos />} />
+        </Route>
 
-      {/* Ruta por defecto */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }

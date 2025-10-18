@@ -86,7 +86,8 @@ export default function Header() {
         {/* Nav (medio, oculto en xs) */}
         <nav className="d-none d-md-block">
           <ul className="nav">
-            <li className="nav-item"><NavLink end to="/" className="nav-link">Home</NavLink></li>
+            {/* ✅ Home ahora apunta a /home (sin cambiar tu estilo/clases) */}
+            <li className="nav-item"><NavLink end to="/home" className="nav-link">Home</NavLink></li>
             <li className="nav-item"><NavLink to="/productos" className="nav-link">Productos</NavLink></li>
             <li className="nav-item"><NavLink to="/blogs" className="nav-link">Blogs</NavLink></li>
             <li className="nav-item"><NavLink to="/nosotros" className="nav-link">Nosotros</NavLink></li>

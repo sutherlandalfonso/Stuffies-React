@@ -1,20 +1,26 @@
 // src/pages/Fondo.jsx
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import "../assets/css/styles.css";
 
 export default function Fondo() {
   const navigate = useNavigate();
 
-  // (opcional) permitir salir con tecla Enter o clic en el fondo
+  // Debug: confirmar montaje del Fondo
   useEffect(() => {
-    const onKey = (e) => { if (e.key === "Enter") navigate("/"); };
+    console.log("[FONDO] montado ✅");
+  }, []);
+
+  // Click o Enter → ir a /home
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Enter") navigate("/home"); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [navigate]);
 
   return (
     <main className="landing-hero">
-      <div className="overlay" onClick={() => navigate("/")}></div>
+      <div className="overlay" onClick={() => navigate("/home")} />
 
       <div className="content">
         <div className="logo-container">
@@ -27,7 +33,7 @@ export default function Fondo() {
         </div>
 
         <div className="btn-container">
-          <Link to="/" className="btn btn-home">Home</Link>
+          <Link to="/home" className="btn btn-home">Home</Link>
           <Link to="/productos" className="btn btn-productos">Productos</Link>
         </div>
       </div>
