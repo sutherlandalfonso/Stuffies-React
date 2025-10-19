@@ -13,6 +13,45 @@ export default function Login() {
   const [remember, setRemember] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "", show: false });
 
+  // === Estado de errores para inputs ===
+  const [errors, setErrors] = useState({}); // { email?: string, pass?: string }
+
+  // === Validadores inline (ligeros) ===
+  const requerido = (v) =>
+    (typeof v === "string" ? v.trim() : v) ? null : "Este campo es obligatorio";
+
+  const longitud = (v, { min = 0, max = Infinity } = {}) => {
+    const s = String(v ?? "").trim();
+    if (s.length < min) return `Mínimo ${min} caracteres`;
+    if (s.length > max) return `Máximo ${max} caracteres`;
+    return null;
+  };
+
+  const emailRegex = /^\S+@\S+\.\S+$/;
+
+  // El campo "email" admite usuario O correo.
+  // Si trae "@", validamos formato email; si no, validamos como usuario (>=3).
+  const validarIdentidad = (v) => {
+    const base =
+      requerido(v) || longitud(v, { min: 3, max: 100 });
+    if (base) return base;
+    const s = String(v).trim();
+    if (s.includes("@") && !emailRegex.test(s)) return "Correo inválido";
+    return null;
+  };
+
+  const validarPass = (v) =>
+    requerido(v) || longitud(v, { min: 4, max: 10 });
+
+  const validarTodo = (draft) => {
+    const e = {};
+    const eEmail = validarIdentidad(draft.email);
+    if (eEmail) e.email = eEmail;
+    const ePass = validarPass(draft.pass);
+    if (ePass) e.pass = ePass;
+    return e; // {} si no hay errores
+  };
+
   // Crear usuario admin por defecto (igual que en tu HTML)
   useEffect(() => {
     try {
@@ -32,9 +71,7 @@ export default function Login() {
         });
         localStorage.setItem(USERS_KEY, JSON.stringify(users));
       }
-    } catch {
-      
-    }
+    } catch {}
   }, []);
 
   const getUsers = () => {
@@ -50,6 +87,15 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // 1) Validación de campos
+    const fieldErrors = validarTodo({ email, pass });
+    setErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length) {
+      showMsg("danger", "Revisa los campos marcados en rojo.");
+      return;
+    }
+
+    // 2) Autenticación
     const id = email.trim().toLowerCase();
     const users = getUsers();
     const found = users.find(
@@ -68,28 +114,58 @@ export default function Login() {
       "https://i.postimg.cc/qRdn8fDv/LOGO-ESTRELLA-SIMPLE-CON-ESTRELLITAS.png";
 
     localStorage.setItem(
-  SESSION_KEY,
-  JSON.stringify({
-    user: found.user,
-    name: found.name,
-    email: found.email,
-    avatar,
-    role: found.role || "cliente",
-    remember: !!remember,
-  })
-);
+      SESSION_KEY,
+      JSON.stringify({
+        user: found.user,
+        name: found.name,
+        email: found.email,
+        avatar,
+        role: found.role || "cliente",
+        remember: !!remember,
+      })
+    );
 
-// 👇 AVISAR AL HEADER (y a otras pestañas) QUE CAMBIÓ LA SESIÓN
-window.dispatchEvent(new Event("session:updated"));
+    // Avisar a Header/otras pestañas que cambió la sesión
+    window.dispatchEvent(new Event("session:updated"));
 
-if (found.role === "admin") {
-  showMsg("success", "¡Bienvenido/a admin! Redirigiendo al panel…");
-  setTimeout(() => navigate("/admin"), 500);
-} else {
-  showMsg("success", `¡Bienvenido/a, ${found.name || found.user}! Redirigiendo…`);
-  setTimeout(() => navigate("/"), 500);
-}
+    if (found.role === "admin") {
+      showMsg("success", "¡Bienvenido/a admin! Redirigiendo al panel…");
+      setTimeout(() => navigate("/admin"), 500);
+    } else {
+      showMsg("success", `¡Bienvenido/a, ${found.name || found.user}! Redirigiendo…`);
+      setTimeout(() => navigate("/"), 500);
+    }
   };
+
+  // Validación “en vivo” al tipear
+  const onChangeEmail = (v) => {
+    setEmail(v);
+    setErrors((prev) => {
+      const next = { ...prev };
+      const err = validarIdentidad(v);
+      if (err) next.email = err; else delete next.email;
+      return next;
+    });
+  };
+
+  const onChangePass = (v) => {
+    setPass(v);
+    setErrors((prev) => {
+      const next = { ...prev };
+      const err = validarPass(v);
+      if (err) next.pass = err; else delete next.pass;
+      return next;
+    });
+  };
+
+  const cls = (name) => `form-control ${errors[name] ? "is-invalid" : ""}`;
+  const Msg = ({ name, fallback }) =>
+    errors[name] ? (
+      <div className="invalid-feedback">{errors[name]}</div>
+    ) : (
+      // conserva tu bloque para mantener altura y layout
+      fallback ? <div className="invalid-feedback d-none">{fallback}</div> : null
+    );
 
   return (
     <main className="py-5 bg-dark">
@@ -112,13 +188,17 @@ if (found.role === "admin") {
                       type="text"
                       id="email"
                       name="email"
-                      className="form-control"
+                      className={cls("email")}
                       maxLength={100}
                       required
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => onChangeEmail(e.target.value)}
                     />
-                    <div className="invalid-feedback">Ingresa tu usuario o correo.</div>
+                    {/* reemplazo por mensaje dinámico; dejo fallback invisible para no mover layout */}
+                    <Msg
+                      name="email"
+                      fallback="Ingresa tu usuario o correo."
+                    />
                   </div>
 
                   <div className="mb-3">
@@ -129,16 +209,17 @@ if (found.role === "admin") {
                       type="password"
                       id="password"
                       name="password"
-                      className="form-control"
+                      className={cls("pass")}
                       minLength={4}
                       maxLength={10}
                       required
                       value={pass}
-                      onChange={(e) => setPass(e.target.value)}
+                      onChange={(e) => onChangePass(e.target.value)}
                     />
-                    <div className="invalid-feedback">
-                      Ingresa tu contraseña (4–10 caracteres).
-                    </div>
+                    <Msg
+                      name="pass"
+                      fallback="Ingresa tu contraseña (4–10 caracteres)."
+                    />
                   </div>
 
                   <div className="d-flex justify-content-between align-items-center mb-3">
@@ -162,7 +243,11 @@ if (found.role === "admin") {
                   </button>
 
                   {msg.show && (
-                    <div id="msg" className={`alert alert-${msg.type} mt-3`} role="alert">
+                    <div
+                      id="msg"
+                      className={`alert alert-${msg.type} mt-3`}
+                      role="alert"
+                    >
                       {msg.text}
                     </div>
                   )}

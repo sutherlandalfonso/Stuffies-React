@@ -7,22 +7,75 @@ export default function Contacto() {
     comentario: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [enviado, setEnviado] = useState(false);
 
+  // === Validadores simples (inline) ===
+  const requerido = (v) =>
+    (typeof v === "string" ? v.trim() : v) ? null : "Este campo es obligatorio";
+
+  const emailValido = (v) =>
+    !v || /^\S+@\S+\.\S+$/.test(String(v).trim()) ? null : "Correo inválido";
+
+  const longitud = (v, { min = 0, max = Infinity } = {}) => {
+    const s = String(v ?? "").trim();
+    if (s.length < min) return `Mínimo ${min} caracteres`;
+    if (s.length > max) return `Máximo ${max} caracteres`;
+    return null;
+  };
+
+  // Aplica las reglas a un objeto { campo: valor }
+  const validar = (draft) => {
+    const e = {};
+    // nombre: requerido (min 3, max 100)
+    e.nombre =
+      requerido(draft.nombre) || longitud(draft.nombre, { min: 3, max: 100 });
+
+    // correo: opcional, pero si viene debe ser válido y <=100
+    e.correo =
+      emailValido(draft.correo) ||
+      (draft.correo ? longitud(draft.correo, { max: 100 }) : null);
+
+    // comentario: requerido (min 10, max 500)
+    e.comentario =
+      requerido(draft.comentario) ||
+      longitud(draft.comentario, { min: 10, max: 500 });
+
+    // limpia las claves sin error (deja solo las que tienen mensaje)
+    Object.keys(e).forEach((k) => e[k] == null && delete e[k]);
+    return e;
+  };
+
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.id]: e.target.value,
-    });
+    const { id, value } = e.target;
+    const next = { ...form, [id]: value };
+    setForm(next);
+
+    // Validación por campo al tipear (opcional pero útil)
+    const fieldErrors = validar(next);
+    setErrors(fieldErrors);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.nombre || !form.comentario) return;
+
+    const fieldErrors = validar(form);
+    setErrors(fieldErrors);
+
+    if (Object.keys(fieldErrors).length) return;
+
+    // Éxito
     setEnviado(true);
     setForm({ nombre: "", correo: "", comentario: "" });
     setTimeout(() => setEnviado(false), 3000);
   };
+
+  // Helpers de clases y mensajes
+  const cls = (name) => `form-control ${errors[name] ? "is-invalid" : ""}`;
+  const Msg = ({ name }) =>
+    errors[name] ? (
+      <div className="invalid-feedback">{errors[name]}</div>
+    ) : null;
 
   return (
     <main>
@@ -48,12 +101,13 @@ export default function Contacto() {
                   </label>
                   <input
                     id="nombre"
-                    className="form-control"
-                    maxLength="100"
+                    className={cls("nombre")}
+                    maxLength={100}
                     required
                     value={form.nombre}
                     onChange={handleChange}
                   />
+                  <Msg name="nombre" />
                 </div>
 
                 <div className="col-md-6 form-group">
@@ -63,12 +117,13 @@ export default function Contacto() {
                   <input
                     id="correo"
                     type="email"
-                    className="form-control"
-                    maxLength="100"
+                    className={cls("correo")}
+                    maxLength={100}
                     placeholder="nombre@duoc.cl"
                     value={form.correo}
                     onChange={handleChange}
                   />
+                  <Msg name="correo" />
                 </div>
 
                 <div className="col-12 form-group">
@@ -77,13 +132,14 @@ export default function Contacto() {
                   </label>
                   <textarea
                     id="comentario"
-                    className="form-control"
-                    rows="5"
-                    maxLength="500"
+                    className={cls("comentario")}
+                    rows={5}
+                    maxLength={500}
                     required
                     value={form.comentario}
                     onChange={handleChange}
-                  ></textarea>
+                  />
+                  <Msg name="comentario" />
                 </div>
               </div>
 
@@ -94,9 +150,10 @@ export default function Contacto() {
                 <button
                   type="button"
                   className="btn btn-outline-dark"
-                  onClick={() =>
-                    setForm({ nombre: "", correo: "", comentario: "" })
-                  }
+                  onClick={() => {
+                    setForm({ nombre: "", correo: "", comentario: "" });
+                    setErrors({});
+                  }}
                 >
                   Limpiar
                 </button>

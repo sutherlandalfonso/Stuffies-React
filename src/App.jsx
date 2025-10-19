@@ -12,6 +12,7 @@ import Contacto from "./pages/Contacto.jsx";
 import Login from "./pages/Login.jsx";
 import Carrito from "./pages/Carrito.jsx";
 import Fondo from "./pages/Fondo.jsx";
+import Registro from "./pages/Registro.jsx";
 
 // Admin
 import AdminLayout from "./admin/AdminLayout.jsx";
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="login" element={<Login />} />
           <Route path="carrito" element={<Carrito />} />
           <Route path="inicio" element={<Navigate to="/home" replace />} />
+          <Route path="registro" element={<Registro />} />
         </Route>
 
         {/* Admin */}

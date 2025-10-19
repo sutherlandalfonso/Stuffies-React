@@ -11,6 +11,7 @@ import Nosotros from "../pages/Nosotros.jsx";
 import Contacto from "../pages/Contacto.jsx";
 import Login from "../pages/Login.jsx";
 import Carrito from "../pages/Carrito.jsx";
+import Registro from "../pages/Registro.jsx"; //
 
 export const publicRoutes = [
   // 🔹 Landing / Salvapantallas como raíz (sin Layout)
@@ -30,6 +31,7 @@ export const publicRoutes = [
       { path: "login", element: <Login /> },
       { path: "carrito", element: <Carrito /> },
       { path: "inicio", element: <Navigate to="/home" replace /> },
+      { path: "registro", element: <Registro /> },
     ],
   },
 ];

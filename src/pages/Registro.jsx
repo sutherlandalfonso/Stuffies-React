@@ -13,6 +13,40 @@ const getUsers = () => {
 };
 const setUsers = (arr) => localStorage.setItem(USERS_KEY, JSON.stringify(arr));
 
+// 👇 MUEVO idToKey ARRIBA para no usarlo antes de declararlo
+const idToKey = (id) =>
+  ({
+    regRun: "run",
+    regName: "name",
+    regLast: "last",
+    regEmail: "email",
+    regUser: "user",
+    regPass: "pass",
+    regPass2: "pass2",
+    regAddress: "address",
+    regRole: "role",
+  }[id] || id);
+
+// === Validadores inline, simples y reutilizables ===
+const required = (v, msg = "Campo obligatorio") =>
+  (typeof v === "string" ? v.trim() : v) ? null : msg;
+
+const emailOk = (v) =>
+  /^\S+@\S+\.\S+$/.test(String(v).trim()) ? null : "Correo inválido";
+
+const len = (v, { min = 0, max = Infinity } = {}) => {
+  const s = String(v ?? "").trim();
+  if (s.length < min) return `Mínimo ${min} caracteres`;
+  if (s.length > max) return `Máximo ${max} caracteres`;
+  return null;
+};
+
+// RUN chileno simple (solo dígitos, 7–9). Si quieres DV lo agregamos luego.
+const runSimple = (v) =>
+  /^\d{7,9}$/.test(String(v).trim())
+    ? null
+    : "Ingresa un RUN válido (solo números, 7–9 dígitos)";
+
 export default function Registro() {
   const navigate = useNavigate();
 
@@ -30,53 +64,53 @@ export default function Registro() {
   const [errors, setErrors] = useState({});
   const [ok, setOk] = useState(false);
 
-  const onChange = (e) => {
-    const { id, value } = e.target;
-    setForm((f) => ({ ...f, [idToKey(id)]: value }));
-    setErrors((er) => ({ ...er, [idToKey(id)]: "" }));
-  };
-
-  const idToKey = (id) =>
-    ({
-      regRun: "run",
-      regName: "name",
-      regLast: "last",
-      regEmail: "email",
-      regUser: "user",
-      regPass: "pass",
-      regPass2: "pass2",
-      regAddress: "address",
-      regRole: "role",
-    }[id] || id);
-
-  const validate = () => {
+  // Validación completa del formulario
+  const validate = (draft = form) => {
     const e = {};
-    // RUN chileno simple (solo números, 7–9 dígitos). Puedes mejorar si quieres DV.
-    if (!/^\d{7,9}$/.test(form.run.trim())) e.run = "Ingresa un RUN válido (solo números, 7–9 dígitos)";
-    if (!form.name.trim()) e.name = "Ingresa tu nombre";
-    if (!form.last.trim()) e.last = "Ingresa tus apellidos";
-    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) e.email = "Correo inválido";
-    if (!form.user.trim()) e.user = "Ingresa un usuario";
-    if (form.pass.length < 4 || form.pass.length > 10) e.pass = "La contraseña debe tener 4–10 caracteres";
-    if (form.pass2 !== form.pass) e.pass2 = "Las contraseñas no coinciden";
-    if (!form.address.trim()) e.address = "Ingresa tu dirección";
-    if (!form.role) e.role = "Selecciona un tipo de usuario";
 
+    e.run = runSimple(draft.run);
+    e.name = required(draft.name, "Ingresa tu nombre") || len(draft.name, { min: 2, max: 50 });
+    e.last = required(draft.last, "Ingresa tus apellidos") || len(draft.last, { min: 2, max: 100 });
+    e.email = required(draft.email, "Ingresa tu correo") || emailOk(draft.email) || len(draft.email, { max: 100 });
+    e.user = required(draft.user, "Ingresa un usuario") || len(draft.user, { min: 3, max: 30 });
+    e.pass = required(draft.pass, "Ingresa una contraseña") || len(draft.pass, { min: 4, max: 10 });
+    e.pass2 = required(draft.pass2, "Repite la contraseña") || (draft.pass2 !== draft.pass ? "Las contraseñas no coinciden" : null);
+    e.address = required(draft.address, "Ingresa tu dirección") || len(draft.address, { min: 5, max: 300 });
+    e.role = required(draft.role, "Selecciona un tipo de usuario");
+
+    // Unicidad
     const users = getUsers();
-    if (!e.email && users.some((u) => (u.email || "").toLowerCase() === form.email.trim().toLowerCase())) {
+    if (!e.email && users.some((u) => (u.email || "").toLowerCase() === draft.email.trim().toLowerCase())) {
       e.email = "Este correo ya está registrado";
     }
-    if (!e.user && users.some((u) => (u.user || "").toLowerCase() === form.user.trim().toLowerCase())) {
+    if (!e.user && users.some((u) => (u.user || "").toLowerCase() === draft.user.trim().toLowerCase())) {
       e.user = "Este usuario ya existe";
     }
 
+    // Limpia null/undefined
+    Object.keys(e).forEach((k) => e[k] == null && delete e[k]);
+    return e;
+  };
+
+  // Validación por campo al escribir (no cambia tu layout)
+  const validateField = (key, value) => {
+    const draft = { ...form, [key]: value };
+    const e = validate(draft);
     setErrors(e);
-    return Object.keys(e).length === 0;
+  };
+
+  const onChange = (e) => {
+    const { id, value } = e.target;
+    const key = idToKey(id);
+    setForm((f) => ({ ...f, [key]: value }));
+    validateField(key, value);
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    const eAll = validate();
+    setErrors(eAll);
+    if (Object.keys(eAll).length) return;
 
     const users = getUsers();
     users.push({
@@ -98,7 +132,12 @@ export default function Registro() {
 
   const cls = (key) => `form-control ${errors[key] ? "is-invalid" : ""}`;
   const msg = (key) =>
-    errors[key] ? <div className="invalid-feedback">{errors[key]}</div> : <div className="invalid-feedback"></div>;
+    errors[key] ? (
+      <div className="invalid-feedback">{errors[key]}</div>
+    ) : (
+      // Reservo el espacio para que el layout no salte
+      <div className="invalid-feedback" />
+    );
 
   return (
     <main className="container py-5">
@@ -114,30 +153,32 @@ export default function Registro() {
                   <label htmlFor="regRun" className="form-label">
                     RUN (sin puntos ni guion)
                   </label>
-                  <input id="regRun" className={cls("run")} maxLength={9} value={form.run} onChange={onChange} />
+                  <input
+                    id="regRun"
+                    className={cls("run")}
+                    inputMode="numeric"
+                    maxLength={9}
+                    value={form.run}
+                    onChange={onChange}
+                    placeholder="12345678"
+                  />
                   {msg("run")}
                 </div>
 
                 <div className="col-md-4 form-group">
-                  <label htmlFor="regName" className="form-label">
-                    Nombre
-                  </label>
+                  <label htmlFor="regName" className="form-label">Nombre</label>
                   <input id="regName" className={cls("name")} maxLength={50} value={form.name} onChange={onChange} />
                   {msg("name")}
                 </div>
 
                 <div className="col-md-4 form-group">
-                  <label htmlFor="regLast" className="form-label">
-                    Apellidos
-                  </label>
+                  <label htmlFor="regLast" className="form-label">Apellidos</label>
                   <input id="regLast" className={cls("last")} maxLength={100} value={form.last} onChange={onChange} />
                   {msg("last")}
                 </div>
 
                 <div className="col-md-6 form-group">
-                  <label htmlFor="regEmail" className="form-label">
-                    Correo
-                  </label>
+                  <label htmlFor="regEmail" className="form-label">Correo</label>
                   <input
                     id="regEmail"
                     type="email"
@@ -145,22 +186,19 @@ export default function Registro() {
                     maxLength={100}
                     value={form.email}
                     onChange={onChange}
+                    placeholder="nombre@duoc.cl"
                   />
                   {msg("email")}
                 </div>
 
                 <div className="col-md-6 form-group">
-                  <label htmlFor="regUser" className="form-label">
-                    Usuario
-                  </label>
+                  <label htmlFor="regUser" className="form-label">Usuario</label>
                   <input id="regUser" className={cls("user")} maxLength={30} value={form.user} onChange={onChange} />
                   {msg("user")}
                 </div>
 
                 <div className="col-md-6 form-group">
-                  <label htmlFor="regPass" className="form-label">
-                    Contraseña (4–10)
-                  </label>
+                  <label htmlFor="regPass" className="form-label">Contraseña (4–10)</label>
                   <input
                     id="regPass"
                     type="password"
@@ -169,14 +207,13 @@ export default function Registro() {
                     maxLength={10}
                     value={form.pass}
                     onChange={onChange}
+                    placeholder="••••"
                   />
                   {msg("pass")}
                 </div>
 
                 <div className="col-md-6 form-group">
-                  <label htmlFor="regPass2" className="form-label">
-                    Repite la contraseña
-                  </label>
+                  <label htmlFor="regPass2" className="form-label">Repite la contraseña</label>
                   <input
                     id="regPass2"
                     type="password"
@@ -185,14 +222,13 @@ export default function Registro() {
                     maxLength={10}
                     value={form.pass2}
                     onChange={onChange}
+                    placeholder="••••"
                   />
                   {msg("pass2")}
                 </div>
 
                 <div className="col-md-6 form-group">
-                  <label htmlFor="regAddress" className="form-label">
-                    Dirección
-                  </label>
+                  <label htmlFor="regAddress" className="form-label">Dirección</label>
                   <input
                     id="regAddress"
                     className={cls("address")}
@@ -204,10 +240,13 @@ export default function Registro() {
                 </div>
 
                 <div className="col-md-6 form-group">
-                  <label htmlFor="regRole" className="form-label">
-                    Tipo de usuario
-                  </label>
-                  <select id="regRole" className={`form-select ${errors.role ? "is-invalid" : ""}`} value={form.role} onChange={onChange}>
+                  <label htmlFor="regRole" className="form-label">Tipo de usuario</label>
+                  <select
+                    id="regRole"
+                    className={`form-select ${errors.role ? "is-invalid" : ""}`}
+                    value={form.role}
+                    onChange={onChange}
+                  >
                     <option value="">Seleccione…</option>
                     <option value="cliente">Cliente</option>
                     <option value="vendedor">Vendedor</option>
@@ -218,15 +257,15 @@ export default function Registro() {
               </div>
 
               <div className="mt-3 d-flex gap-2">
-                <button className="btn btn-primary" type="submit">
-                  Crear cuenta
-                </button>
-                <Link className="btn btn-outline-dark" to="/login">
-                  Ya tengo cuenta
-                </Link>
+                <button className="btn btn-primary" type="submit">Crear cuenta</button>
+                <Link className="btn btn-outline-dark" to="/login">Ya tengo cuenta</Link>
               </div>
 
-              {ok && <div id="okMsg" className="alert alert-success mt-3">¡Cuenta creada! Redirigiendo a login…</div>}
+              {ok && (
+                <div id="okMsg" className="alert alert-success mt-3">
+                  ¡Cuenta creada! Redirigiendo a login…
+                </div>
+              )}
             </form>
           </div>
         </div>
