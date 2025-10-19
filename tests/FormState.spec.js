@@ -12,7 +12,6 @@ function MiniForm() {
   );
 }
 
-// Cambia el .value como lo haría el usuario (sin pelear con React)
 function setNativeValue(input, value) {
   const proto = Object.getPrototypeOf(input);
   const desc = Object.getOwnPropertyDescriptor(proto, 'value');
@@ -46,7 +45,6 @@ describe('Formulario (estado)', () => {
     setNativeValue(input, 'Leonel');
     input.dispatchEvent(new Event('input', { bubbles: true }));
 
-    // Deja a React procesar el setState
     await tick();
 
     const mirror = container.querySelector('[data-testid="mirror"]');

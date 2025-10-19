@@ -20,10 +20,9 @@ describe('Eventos (clic)', () => {
     container.remove();
   });
 
-  it('ejecuta onClick al hacer clic', async () => {
+  it('ejecuta onClick al hacer clic', () => {
     const spy = jasmine.createSpy('onClick');
 
-    // Forzamos el commit del render
     flushSync(() => {
       root.render(<Button label="Agregar" onClick={spy} />);
     });
