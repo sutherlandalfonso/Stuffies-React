@@ -1,16 +1,22 @@
-# React + Vite
+#  ☆ Stuffies 
+-Stuffies nace en Chile con la idea de ofrecer básicos de calidad y diseño fresco e Inspirados en la cultura urbana, trabajamos colecciones versátiles que combinan comodidad y estilo.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+#  ☆Proyecto – React + Vite
+Frontend de catálogo y carrito desarrollado con **React 19 + Vite**, UI en **Bootstrap/Bootswatch** y **pruebas unitarias** con **Jasmine + Karma**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ☆ Características
+- Catálogo de productos responsivo (Bootstrap/Bootswatch).
+- Detalle de producto con cambio de imagen al pasar el mouse.
+- Carrito: agregar, quitar y ver total.
+- Navegación con React Router (Home, Productos, Detalle, Carrito).
+- Datos mock en `src/services/productos.js`.
+- Precios en CLP visibles en las tarjetas/detalle.
+- 11/11 pruebas unitarias en verde (render, estado y eventos).
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## ☆ comandos para levantar el proyecto
+npm run dev  
+npm run test
