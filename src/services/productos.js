@@ -11,6 +11,7 @@ export const productos = [
     tallas: ["S", "M", "L", "XL"],
     colores: ["azul"],
     destacado: false,
+    // ✅ stock por talla
     stockPorTalla: { S: 3, M: 5, L: 2, XL: 0 },
   },
 

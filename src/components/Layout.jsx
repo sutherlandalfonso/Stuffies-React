@@ -1,18 +1,19 @@
 // src/components/Layout.jsx
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Header from "./Header.jsx";
 import Footer from "./Footer.jsx";
 
 export default function Layout() {
+  const { pathname } = useLocation();
+
+  // Oculta header/footer solo en la portada (Fondo)
+  const hideChrome = pathname === "/" || pathname === "/fondo";
+
   return (
     <>
-      {/* El header contiene los enlaces, incluido el acceso a /home y /productos */}
-      <Header />
-
-      {/* Aquí se pintan las páginas internas (Home, Productos, etc.) */}
+      {!hideChrome && <Header />}
       <Outlet />
-
-      <Footer />
+      {!hideChrome && <Footer />}
     </>
   );
 }
