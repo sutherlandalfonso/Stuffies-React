@@ -10,7 +10,7 @@ export const productos = [
     descripcion: "Poleron Boxy Fit White Dice V2.",
     tallas: ["S", "M", "L", "XL"],
     colores: ["azul"],
-    destacado: true,
+    destacado: false,
     // ✅ stock por talla
     stockPorTalla: { S: 3, M: 5, L: 2, XL: 0 },
   },

@@ -431,3 +431,69 @@ main:has(#formContacto) p{ color:#ddd !important; }
 
 .product-card img { transition: transform .35s ease, opacity .35s ease; }
 .product-card:hover img { transform: scale(1.05); opacity: .92; }
+
+/* Bloquea el scroll cuando el drawer está abierto */
+.mm-lock {
+  overflow: hidden;
+}
+
+/* Backdrop */
+.mdraw-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(1px);
+  z-index: 1040;
+  animation: fadeIn .15s ease-out;
+}
+
+/* Panel */
+.mdraw-panel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;               /* drawer desde la izquierda */
+  width: min(80vw, 320px);
+  background: #fff;
+  padding: 16px;
+  z-index: 1050;
+  box-shadow: 0 0 24px rgba(0,0,0,.2);
+  transform: translateX(-100%);
+  animation: slideIn .18s ease-out forwards;
+  overflow-y: auto;
+}
+
+/* Links dentro del drawer */
+.mdraw-link {
+  display: block;
+  padding: 10px 8px;
+  border-radius: .5rem;
+  text-decoration: none;
+  color: #212529;
+  font-weight: 500;
+}
+.mdraw-link.active,
+.mdraw-link:hover {
+  background: #f1f3f5;
+}
+
+/* Animaciones */
+@keyframes slideIn {
+  to { transform: translateX(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+
+/* Ajustes badge carrito en header (compacto) */
+header .badge {
+  font-size: .65rem;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0 6px;
+}
+
