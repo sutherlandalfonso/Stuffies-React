@@ -421,3 +421,52 @@ main:has(#formContacto) p{ color:#ddd !important; }
 .product-card img { transition: transform .35s ease, opacity .35s ease; }
 .product-card:hover img { transform: scale(1.05); opacity: .92; }
 
+
+/* ===== Drawer móvil renderizado en PORTAL ===== */
+/* No depende del header, siempre por encima de todo */
+.mdraw-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 2147483646; /* muy alto */
+}
+
+.mdraw-panel{
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(86%, 360px);
+  height: 100%;
+  background: #fff;
+  color: #000;
+  padding: 16px;
+  box-shadow: -12px 0 28px rgba(0,0,0,.35);
+  transform: translateX(100%);
+  animation: mdraw-in .25s ease forwards;
+  z-index: 2147483647; /* más alto que el backdrop */
+  overflow: auto;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+
+/* animación de entrada */
+@keyframes mdraw-in{
+  to { transform: translateX(0); }
+}
+
+/* bloquear scroll del body cuando está abierto */
+.mm-lock{
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+/* Header por encima del contenido normal, pero MUY por debajo del drawer */
+.site-header{ z-index: 1000; position: sticky; top: 0; }
+
+/* Ajustes visuales del panel */
+.mdraw-panel .list-group-item{
+  border: 1px solid #e9ecef;
+  padding: .85rem 1rem;
+}
+.mdraw-panel .list-group-item + .list-group-item{ margin-top: .45rem; }
+.mdraw-panel .list-group-item:hover{ background: #f8f9fa; }
