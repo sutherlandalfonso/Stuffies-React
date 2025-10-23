@@ -1,4 +1,30 @@
+// src/components/Footer.jsx
+import { useState } from "react";
+
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [msg, setMsg] = useState({ show: false, type: "success", text: "" });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const value = email.trim();
+
+    // Validación básica de email
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    if (!ok) {
+      setMsg({ show: true, type: "danger", text: "Ingresa un correo válido." });
+      return;
+    }
+
+    // Simula envío (sin almacenar nada)
+    setMsg({
+      show: true,
+      type: "success",
+      text: `¡Gracias por suscribirte, ${value}!`,
+    });
+    setEmail("");
+  };
+
   return (
     <footer className="footer-dark py-5">
       <div className="container">
@@ -33,16 +59,30 @@ export default function Footer() {
           {/* Suscripción */}
           <div className="col-md-4 text-center text-md-end">
             <h5 className="text-white mb-3">Suscríbete</h5>
-            <form className="d-flex justify-content-center justify-content-md-end">
+
+            <form
+              className="d-flex justify-content-center justify-content-md-end"
+              onSubmit={handleSubmit}
+              noValidate
+            >
               <input
                 type="email"
                 placeholder="Ingresa tu email"
                 className="form-control me-2 w-auto footer-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-              <button type="button" className="btn btn-light footer-btn">
+              <button type="submit" className="btn btn-light footer-btn">
                 Suscribirse
               </button>
             </form>
+
+            {msg.show && (
+              <div className={`alert alert-${msg.type} mt-3 py-2 px-3`} role="alert">
+                {msg.text}
+              </div>
+            )}
           </div>
         </div>
 
