@@ -1,64 +1,121 @@
+// src/pages/Checkout.jsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCart, getCartTotals, clearCart } from "../services/cart.js";
+import { createOrder } from "../services/orders.js";
 
-const ORDERS_KEY = "stuffies_orders";
 const SESSION_KEY = "stuffies_session";
-
 const getSession = () => {
   try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch { return null; }
 };
-const getOrders = () => {
-  try { return JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]"); } catch { return []; }
+
+// -------- Validadores --------
+const rules = {
+  nombre: (v) => {
+    const val = String(v || "").trim();
+    if (!val) return "Ingresa tu nombre completo.";
+    if (!/^[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{3,60}$/.test(val)) return "Solo letras/espacios (3–60).";
+    return "";
+  },
+  direccion: (v) => {
+    const val = String(v || "").trim();
+    if (!val) return "Ingresa tu dirección.";
+    if (!/^[\wÁÉÍÓÚÑáéíóúñ\s\.\-#]{5,120}$/.test(val)) return "Dirección inválida (5–120).";
+    return "";
+  },
+  comuna: (v) => {
+    const val = String(v || "").trim();
+    if (!val) return "Ingresa tu comuna.";
+    if (!/^[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{3,40}$/.test(val)) return "Solo letras/espacios (3–40).";
+    return "";
+  },
+  telefono: (v) => {
+    const val = String(v || "").trim();
+    if (!val) return "Ingresa tu teléfono.";
+    // +569XXXXXXXX  |  56 9 XXXXXXXX  |  9XXXXXXXX
+    if (!/^(\+?56\s?9\d{8}|9\d{8})$/.test(val)) return "Formato válido: +569XXXXXXXX o 9XXXXXXXX.";
+    return "";
+  },
 };
-const saveOrders = (arr) => {
-  localStorage.setItem(ORDERS_KEY, JSON.stringify(arr));
-  try { window.dispatchEvent(new Event("orders:updated")); } catch {}
+
+const validateAll = (form) => {
+  const e = {};
+  for (const k of Object.keys(rules)) {
+    const msg = rules[k](form[k]);
+    if (msg) e[k] = msg;
+  }
+  return e;
 };
-function nextOrderId(existing = []) {
-  const nums = existing.map(o => String(o.id || ""))
-    .map(id => Number((id.match(/\d+/) || [0])[0]) || 0);
-  const n = (Math.max(0, ...nums) + 1).toString().padStart(3, "0");
-  return `ORD-${n}`;
-}
 
 export default function Checkout() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ nombre: "", direccion: "", comuna: "", telefono: "" });
-  const [flash, setFlash] = useState(null); // {type,text}
+  const [touched, setTouched] = useState({});
+  const [errors, setErrors] = useState({});
+  const [flash, setFlash] = useState(null);
+
   const cart = getCart();
   const totals = useMemo(() => getCartTotals(), [cart]);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  const onChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const setField = (name, value) => {
+    setForm((f) => ({ ...f, [name]: value }));
+    // valida campo al escribir si ya fue tocado
+    if (touched[name]) {
+      setErrors((er) => ({ ...er, [name]: rules[name](value) }));
+    }
+  };
+
+  const onChange = (e) => setField(e.target.name, e.target.value);
+  const onBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((t) => ({ ...t, [name]: true }));
+    setErrors((er) => ({ ...er, [name]: rules[name](value) }));
+  };
+
+  const cls = (name) =>
+    `form-control ${touched[name] && errors[name] ? "is-invalid" : touched[name] && !errors[name] ? "is-valid" : ""}`;
 
   const onSubmit = (e) => {
     e.preventDefault();
+
     if (!cart.length) {
       setFlash({ type: "danger", text: "Tu carrito está vacío." });
       return;
     }
-    if (!form.nombre || !form.direccion || !form.comuna || !form.telefono) {
-      setFlash({ type: "warning", text: "Completa todos los campos requeridos." });
+
+    // valida todo
+    const eAll = validateAll(form);
+    setErrors(eAll);
+    setTouched({ nombre: true, direccion: true, comuna: true, telefono: true });
+    if (Object.keys(eAll).length) {
+      setFlash({ type: "warning", text: "Revisa los campos marcados en rojo." });
       return;
     }
 
     const session = getSession();
-    const orders = getOrders();
-    const id = nextOrderId(orders);
-    const order = {
-      id,
-      fecha: new Date().toISOString().slice(0, 10),
-      cliente: session?.nombre || form.nombre,
-      envio: { ...form },
-      items: cart.map(it => ({
-        id: it.id, nombre: it.nombre, talla: it.talla, color: it.color,
-        precio: it.precio, cantidad: it.cantidad, imagen: it.imagen
+    const id = createOrder({
+      cliente: {
+        nombre: session?.nombre || form.nombre,
+        email: session?.email || "",
+        direccion: `${form.direccion}, ${form.comuna}`,
+        telefono: form.telefono,
+      },
+      items: cart.map((it) => ({
+        id: it.id,
+        nombre: it.nombre,
+        talla: it.talla,
+        color: it.color,
+        precio: Number(it.precio),
+        cantidad: Number(it.cantidad),
+        imagen: it.imagen,
       })),
-      total: totals.total
-    };
-    saveOrders([order, ...orders]);
+      pago: { metodo: "checkout" },
+      meta: {},
+      estado: "Pagado",
+    });
+
     clearCart();
     navigate(`/exito?order=${encodeURIComponent(id)}`);
   };
@@ -75,24 +132,72 @@ export default function Checkout() {
 
       <div className="row g-4">
         <div className="col-12 col-lg-7">
-          <form onSubmit={onSubmit} className="card card-body bg-dark text-light">
+          <form noValidate onSubmit={onSubmit} className="card card-body bg-dark text-light">
             <h5 className="mb-3">Datos de envío</h5>
             <div className="row g-3">
               <div className="col-12">
-                <label className="form-label">Nombre completo *</label>
-                <input name="nombre" className="form-control" value={form.nombre} onChange={onChange} required />
+                <label className="form-label" htmlFor="nombre">Nombre completo *</label>
+                <input
+                  id="nombre"
+                  name="nombre"
+                  className={cls("nombre")}
+                  value={form.nombre}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  minLength={3}
+                  maxLength={60}
+                  autoComplete="name"
+                  required
+                />
+                <div className="invalid-feedback">{errors.nombre || " "}</div>
               </div>
               <div className="col-12">
-                <label className="form-label">Dirección *</label>
-                <input name="direccion" className="form-control" value={form.direccion} onChange={onChange} required />
+                <label className="form-label" htmlFor="direccion">Dirección *</label>
+                <input
+                  id="direccion"
+                  name="direccion"
+                  className={cls("direccion")}
+                  value={form.direccion}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  minLength={5}
+                  maxLength={120}
+                  autoComplete="address-line1"
+                  required
+                />
+                <div className="invalid-feedback">{errors.direccion || " "}</div>
               </div>
               <div className="col-12 col-md-6">
-                <label className="form-label">Comuna *</label>
-                <input name="comuna" className="form-control" value={form.comuna} onChange={onChange} required />
+                <label className="form-label" htmlFor="comuna">Comuna *</label>
+                <input
+                  id="comuna"
+                  name="comuna"
+                  className={cls("comuna")}
+                  value={form.comuna}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  minLength={3}
+                  maxLength={40}
+                  autoComplete="address-level2"
+                  required
+                />
+                <div className="invalid-feedback">{errors.comuna || " "}</div>
               </div>
               <div className="col-12 col-md-6">
-                <label className="form-label">Teléfono *</label>
-                <input name="telefono" className="form-control" value={form.telefono} onChange={onChange} required />
+                <label className="form-label" htmlFor="telefono">Teléfono *</label>
+                <input
+                  id="telefono"
+                  name="telefono"
+                  className={cls("telefono")}
+                  value={form.telefono}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  placeholder="+569XXXXXXXX"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  required
+                />
+                <div className="invalid-feedback">{errors.telefono || " "}</div>
               </div>
             </div>
 

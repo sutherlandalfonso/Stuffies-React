@@ -14,7 +14,6 @@ export default function Carrito() {
   const navigate = useNavigate();
   const [items, setItems] = useState(() => getCart());
 
-  // Sincroniza cuando otra pestaña o parte de la app cambia el carrito
   useEffect(() => {
     const sync = () => setItems(getCart());
     window.addEventListener("storage", sync);
@@ -42,14 +41,12 @@ export default function Carrito() {
     setItems([]);
   }, []);
 
+  // ✅ Ir al Checkout para generar la boleta (createOrder) y luego mostrar éxito
   const onCheckout = useCallback(() => {
-    // aquí iría tu flujo real de pago; por ahora vaciamos y redirigimos
-    clearCart();
-    setItems([]);
-    navigate("/exito", { replace: true });
-  }, [navigate]);
+    if (!Array.isArray(items) || items.length === 0) return;
+    navigate("/checkout");
+  }, [navigate, items]);
 
-  // Asegura array siempre (evita el "reading 'reduce'")
   const safeItems = Array.isArray(items) ? items : [];
 
   return (

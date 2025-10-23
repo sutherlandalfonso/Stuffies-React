@@ -1,34 +1,28 @@
 // src/admin/pages/Ordenes.jsx
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { listOrders } from "../../services/orders.js";
 
-const ORDERS_KEY = "stuffies_orders";
+const STORAGE_KEY = "stuffies_orders_v1";
 const CLP = new Intl.NumberFormat("es-CL", {
   style: "currency",
   currency: "CLP",
   maximumFractionDigits: 0,
 });
 
-const getOrders = () => {
-  try {
-    return JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
-  } catch {
-    return [];
-  }
-};
-
 export default function Ordenes() {
   const [orders, setOrders] = useState([]);
 
   // Cargar y escuchar cambios en órdenes (storage + evento custom)
   useEffect(() => {
-    const load = () => setOrders(getOrders());
+    const load = () => setOrders(listOrders());
     load();
 
     const onStorage = (e) => {
-      if (e.key === ORDERS_KEY) load();
+      // reaccionar si cambia la key de órdenes o si se limpia todo
+      if (!e || e.key === null || e.key === STORAGE_KEY) load();
     };
-    const onOrdersUpdated = () => load(); // emite window.dispatchEvent(new Event("orders:updated"))
+    const onOrdersUpdated = () => load(); // lo dispara saveAll() en orders.js
 
     window.addEventListener("storage", onStorage);
     window.addEventListener("orders:updated", onOrdersUpdated);
@@ -38,23 +32,26 @@ export default function Ordenes() {
     };
   }, []);
 
-  // Ordenar por fecha desc (y por id desc como desempate)
-  const rows = useMemo(() => {
-    const parse = (s) => (s ? new Date(s) : new Date(0));
-    return [...orders].sort((a, b) => {
-      const d = parse(b.fecha) - parse(a.fecha);
-      return d !== 0 ? d : String(b.id || "").localeCompare(String(a.id || ""));
-    });
-  }, [orders]);
+  // Ya viene ordenado por listOrders(); dejamos memo por compatibilidad
+  const rows = useMemo(() => [...orders], [orders]);
 
   const badgeClass = (estado = "") => {
-    const e = estado.toLowerCase();
+    const e = (estado || "").toLowerCase();
     if (e.includes("pag")) return "bg-success";                 // Pagado
     if (e.includes("env")) return "bg-info";                    // Enviado
     if (e.includes("pend") || e.includes("proc")) return "bg-warning text-dark"; // Pendiente/Procesando
     if (e.includes("canc") || e.includes("err") || e.includes("rech")) return "bg-danger";
     return "bg-secondary";
   };
+
+  const fmtFecha = (o) =>
+    o.fechaLocal || (o.fechaISO ? new Date(o.fechaISO).toLocaleString("es-CL") : "—");
+
+  const fmtCliente = (o) =>
+    o.cliente?.nombre || o.cliente?.name || o.cliente || "—";
+
+  const fmtTotal = (o) =>
+    CLP.format(Number(o.totals?.total ?? o.total ?? 0));
 
   return (
     <div>
@@ -72,37 +69,37 @@ export default function Ordenes() {
               <th className="text-end">Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="text-center text-secondary py-4">
-                  Aún no hay órdenes registradas.
+        <tbody>
+          {rows.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="text-center text-secondary py-4">
+                Aún no hay órdenes registradas.
+              </td>
+            </tr>
+          ) : (
+            rows.map((o) => (
+              <tr key={o.id}>
+                <td>{o.id}</td>
+                <td>{fmtFecha(o)}</td>
+                <td>{fmtCliente(o)}</td>
+                <td>{fmtTotal(o)}</td>
+                <td>
+                  <span className={`badge ${badgeClass(o.estado)}`}>
+                    {o.estado || "—"}
+                  </span>
+                </td>
+                <td className="text-end">
+                  <Link
+                    to={`../boleta/${encodeURIComponent(o.id)}`}
+                    className="btn btn-sm btn-primary"
+                  >
+                    Mostrar boleta
+                  </Link>
                 </td>
               </tr>
-            ) : (
-              rows.map((o) => (
-                <tr key={o.id}>
-                  <td>{o.id}</td>
-                  <td>{o.fecha ? new Date(o.fecha).toLocaleString("es-CL") : "—"}</td>
-                  <td>{o.cliente || o.customer?.name || "—"}</td>
-                  <td>{CLP.format(Number(o.total ?? 0))}</td>
-                  <td>
-                    <span className={`badge ${badgeClass(o.estado)}`}>
-                      {o.estado || "—"}
-                    </span>
-                  </td>
-                  <td className="text-end">
-                    <Link
-                      to={`../boleta/${encodeURIComponent(o.id)}`}
-                      className="btn btn-sm btn-primary"
-                    >
-                      Mostrar boleta
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
+            ))
+          )}
+        </tbody>
         </table>
       </div>
     </div>
