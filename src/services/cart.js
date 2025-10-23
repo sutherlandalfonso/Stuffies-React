@@ -1,11 +1,14 @@
 // src/services/cart.js
+import { productos } from "./productos.js";
+
 const CART_KEY = "stuffies_cart_v1";
 
-// --- Utils base ---
+// -------- util --------
 function readRaw() {
   try {
     const raw = localStorage.getItem(CART_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const data = raw ? JSON.parse(raw) : [];
+    return Array.isArray(data) ? data : [];
   } catch {
     return [];
   }
@@ -13,14 +16,39 @@ function readRaw() {
 
 function writeRaw(items) {
   localStorage.setItem(CART_KEY, JSON.stringify(items));
-  // Notificar a toda la app que el carrito cambió
   window.dispatchEvent(new CustomEvent("cart:updated"));
 }
 
-// --- API pública ---
+function num(n, d = 0) {
+  const v = Number(n);
+  return Number.isFinite(v) ? v : d;
+}
+
+function pickImage(p) {
+  return (
+    p?.imagenHover ||
+    p?.hover ||
+    (Array.isArray(p?.galeria) && p.galeria[0]) ||
+    p?.imagen ||
+    null
+  );
+}
+
+function sameVariant(a, b) {
+  return a.id === b.id && a.talla === b.talla && a.color === b.color;
+}
+
+// -------- API --------
 export function getCart() {
-  const items = readRaw();
-  return Array.isArray(items) ? items : [];
+  return readRaw().map((it) => ({
+    id: it.id,
+    nombre: it.nombre ?? "",
+    precio: num(it.precio, 0),
+    imagen: it.imagen ?? null,
+    cantidad: num(it.cantidad, 1),
+    talla: it.talla ?? null,
+    color: it.color ?? null,
+  }));
 }
 
 export function setCart(items) {
@@ -31,44 +59,66 @@ export function clearCart() {
   writeRaw([]);
 }
 
-export function addToCart(producto, cantidad = 1) {
-  const items = getCart();
-  const idx = items.findIndex((it) => it.id === producto.id);
+/**
+ * addToCart(producto, opts)
+ * - Acepta el objeto completo del catálogo o { id }.
+ * - Toma talla/color desde opts; si no vienen, usa producto.talla / producto.color.
+ */
+export function addToCart(producto, opts = {}) {
+  if (!producto || typeof producto.id === "undefined") {
+    throw new Error("addToCart: producto inválido");
+  }
+
+  // Fuente de verdad del catálogo
+  const fromDB = productos.find((p) => p.id === Number(producto.id));
+  const base = { ...(fromDB || {}), ...producto };
+
+  const talla = opts.talla ?? producto.talla ?? null;
+  const color = opts.color ?? producto.color ?? null;
+  const cantidad = num(opts.cantidad ?? 1, 1);
+
+  const item = {
+    id: base.id,
+    nombre: base.nombre || "",
+    precio: num(base.precio, 0),
+    imagen: pickImage(base),
+    cantidad,
+    talla,
+    color,
+  };
+
+  const cart = getCart();
+  const idx = cart.findIndex((it) => sameVariant(it, item));
 
   if (idx >= 0) {
-    items[idx].cantidad = (items[idx].cantidad || 0) + cantidad;
+    cart[idx].cantidad += item.cantidad;
   } else {
-    items.push({
-      id: producto.id,
-      nombre: producto.nombre,
-      precio: Number(producto.precio) || 0,
-      imagen: producto.imagen,
-      cantidad: Number(cantidad) || 1,
-      // opcionales:
-      talla: producto.talla || null,
-      color: producto.color || null,
-    });
+    cart.push(item);
   }
-  writeRaw(items);
+
+  writeRaw(cart);
 }
 
-export function updateQuantity(id, cantidad) {
-  const items = getCart().map((it) =>
-    it.id === id ? { ...it, cantidad: Math.max(1, Number(cantidad) || 1) } : it
-  );
-  writeRaw(items);
+export function updateQuantity(target, cantidad) {
+  const qty = Math.max(1, num(cantidad, 1));
+  const cart = getCart();
+  const idx = cart.findIndex((it) => sameVariant(it, target));
+  if (idx >= 0) {
+    cart[idx].cantidad = qty;
+    writeRaw(cart);
+  }
 }
 
-export function removeFromCart(id) {
-  const items = getCart().filter((it) => it.id !== id);
-  writeRaw(items);
+export function removeFromCart(target) {
+  const cart = getCart().filter((it) => !sameVariant(it, target));
+  writeRaw(cart);
 }
 
 export function getCartTotals() {
   const items = getCart();
-  const cantidad = items.reduce((acc, it) => acc + (Number(it.cantidad) || 0), 0);
+  const cantidad = items.reduce((acc, it) => acc + num(it.cantidad, 0), 0);
   const subtotal = items.reduce(
-    (acc, it) => acc + (Number(it.precio) || 0) * (Number(it.cantidad) || 0),
+    (acc, it) => acc + num(it.precio, 0) * num(it.cantidad, 0),
     0
   );
   return { cantidad, subtotal };

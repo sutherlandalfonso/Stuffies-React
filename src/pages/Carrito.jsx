@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   getCart,
-  setCart,
   clearCart,
   removeFromCart,
   updateQuantity,
@@ -16,6 +15,7 @@ export default function Carrito() {
 
   useEffect(() => {
     const sync = () => setItems(getCart());
+    sync();
     window.addEventListener("storage", sync);
     window.addEventListener("cart:updated", sync);
     return () => {
@@ -26,13 +26,13 @@ export default function Carrito() {
 
   const totals = useMemo(() => getCartTotals(), [items]);
 
-  const onQtyChange = useCallback((id, value) => {
-    updateQuantity(id, value);
+  const onQtyChange = useCallback((item, value) => {
+    updateQuantity(item, value);
     setItems(getCart());
   }, []);
 
-  const onRemove = useCallback((id) => {
-    removeFromCart(id);
+  const onRemove = useCallback((item) => {
+    removeFromCart(item);
     setItems(getCart());
   }, []);
 
@@ -41,7 +41,6 @@ export default function Carrito() {
     setItems([]);
   }, []);
 
-  // ✅ Ir al Checkout para generar la boleta (createOrder) y luego mostrar éxito
   const onCheckout = useCallback(() => {
     if (!Array.isArray(items) || items.length === 0) return;
     navigate("/checkout");
@@ -72,27 +71,46 @@ export default function Carrito() {
                 </tr>
               </thead>
               <tbody>
-                {safeItems.map((it) => {
+                {safeItems.map((it, i) => {
                   const precio = Number(it.precio) || 0;
                   const cantidad = Number(it.cantidad) || 0;
                   const subtotal = precio * cantidad;
 
                   return (
-                    <tr key={it.id}>
+                    <tr key={`${it.id}-${it.talla ?? ""}-${it.color ?? ""}-${i}`}>
                       <td>
                         <div className="d-flex align-items-center gap-3">
-                          {it.imagen && (
+                          {it.imagen ? (
                             <img
                               src={it.imagen}
                               alt={it.nombre}
                               style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 8 }}
                             />
+                          ) : (
+                            <div
+                              style={{
+                                width: 56, height: 56, borderRadius: 8,
+                                background: "#2b2f33", display: "grid",
+                                placeItems: "center", fontSize: 10, opacity: .7
+                              }}
+                            >
+                              Sin imagen
+                            </div>
                           )}
+
                           <div>
                             <div className="fw-semibold">{it.nombre}</div>
-                            <div className="text-muted small">
-                              {it.talla ? `Talla: ${it.talla} ` : ""}
-                              {it.color ? ` Color: ${it.color}` : ""}
+
+                            {/* Variante comprada */}
+                            <div className="d-flex flex-wrap gap-2 mt-1">
+                              <span className="badge bg-secondary">
+                                Talla: {it.talla ?? "—"}
+                              </span>
+                              {it.color && (
+                                <span className="badge bg-dark">
+                                  Color: {it.color}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -104,14 +122,17 @@ export default function Carrito() {
                           min="1"
                           className="form-control"
                           value={cantidad}
-                          onChange={(e) => onQtyChange(it.id, e.target.value)}
+                          onChange={(e) => onQtyChange(it, e.target.value)}
                         />
                       </td>
 
                       <td>${precio.toLocaleString("es-CL")}</td>
                       <td>${subtotal.toLocaleString("es-CL")}</td>
                       <td>
-                        <button className="btn btn-outline-danger btn-sm" onClick={() => onRemove(it.id)}>
+                        <button
+                          className="btn btn-outline-danger btn-sm"
+                          onClick={() => onRemove(it)}
+                        >
                           Quitar
                         </button>
                       </td>
