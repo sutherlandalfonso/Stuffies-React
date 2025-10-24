@@ -1,12 +1,12 @@
 // src/admin/pages/ProductoNuevo.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { addProduct } from "../../services/inventory.js"; // 👈 usamos el helper nuevo
+import { addProduct, getCategories } from "../../services/inventory.js";
 
 export default function ProductoNuevo() {
   const navigate = useNavigate();
 
-  // Estado del formulario (mantengo tus campos)
+  // Estado del formulario (igual que lo tenías)
   const [form, setForm] = useState({
     nombre: "",
     categoria: "poleras",
@@ -16,6 +16,32 @@ export default function ProductoNuevo() {
   });
   const [errors, setErrors] = useState({});
   const [ok, setOk] = useState(false);
+
+  //Categorías dinámicas
+  const [cats, setCats] = useState([]);
+
+  useEffect(() => {
+    const loadCats = () => {
+      const list = (getCategories() || []).map((c) => String(c).trim()).filter(Boolean);
+      setCats(list);
+      setForm((f) =>
+        list.length && !list.includes(f.categoria) ? { ...f, categoria: list[0] } : f
+      );
+    };
+    loadCats();
+
+    // refresco si otra pestaña u otra vista cambia categorías
+    const onStorage = (e) => {
+      if (!e || e.key === null || e.key === "stuffies_categories_v1") loadCats();
+    };
+    const onInventoryUpdated = () => loadCats();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("inventory:updated", onInventoryUpdated);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("inventory:updated", onInventoryUpdated);
+    };
+  }, []);
 
   // === Validadores simples ===
   const required = (v, m = "Campo obligatorio") =>
@@ -39,7 +65,13 @@ export default function ProductoNuevo() {
   const validate = (draft = form) => {
     const e = {};
     e.nombre = required(draft.nombre) || len(draft.nombre, { min: 3, max: 80 });
-    e.categoria = required(draft.categoria, "Selecciona una categoría");
+
+    if (!draft.categoria) {
+      e.categoria = "Selecciona una categoría";
+    } else if (cats.length && !cats.includes(draft.categoria)) {
+      e.categoria = "La categoría no existe.";
+    }
+
     e.precio = required(draft.precio) || isPrecio(draft.precio);
     e.descripcion =
       required(draft.descripcion) || len(draft.descripcion, { min: 20, max: 400 });
@@ -53,7 +85,7 @@ export default function ProductoNuevo() {
     const { id, value } = e.target;
     const next = { ...form, [id]: value };
     setForm(next);
-    setErrors(validate(next)); // validación en vivo
+    setErrors(validate(next));
     setOk(false);
   };
 
@@ -63,18 +95,15 @@ export default function ProductoNuevo() {
     setErrors(eAll);
     if (Object.keys(eAll).length) return;
 
-    // Guardar en inventario
-    const creado = addProduct({
+    addProduct({
       nombre: form.nombre,
       categoria: form.categoria,
       precio: form.precio,
       descripcion: form.descripcion,
       imagen: form.imagen,
-      // puedes sumar imagenHover/destacado si más adelante agregas campos
     });
 
     setOk(true);
-    // Redirige a la lista de productos del admin
     setTimeout(() => navigate("../productos"), 600);
   };
 
@@ -114,10 +143,15 @@ export default function ProductoNuevo() {
                   className={cls("categoria").replace("form-control", "form-select")}
                   value={form.categoria}
                   onChange={onChange}
+                  disabled={cats.length === 0}
                 >
-                  <option>poleras</option>
-                  <option>polerones</option>
-                  <option>pantalones</option>
+                  {cats.length === 0 ? (
+                    <option value="">(Sin categorías)</option>
+                  ) : (
+                    cats.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))
+                  )}
                 </select>
                 <Msg k="categoria" />
               </div>
@@ -162,7 +196,9 @@ export default function ProductoNuevo() {
               </div>
 
               <div className="col-12 d-flex gap-2">
-                <button type="submit" className="btn btn-primary">Guardar</button>
+                <button type="submit" className="btn btn-primary" disabled={cats.length === 0}>
+                  Guardar
+                </button>
                 <Link to="../productos" className="btn btn-outline-light">Cancelar</Link>
               </div>
 
