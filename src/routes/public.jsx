@@ -23,22 +23,43 @@ export const publicRoutes = [
     path: "/",
     element: <Layout />,
     children: [
+      // Página inicial
       { index: true, element: <Fondo /> },
+
+      // Catálogo
       { path: "home", element: <Home /> },
       { path: "productos", element: <Productos /> },
       { path: "detalle-producto/:id", element: <DetalleProducto /> },
       { path: "categorias", element: <Categorias /> },
       { path: "ofertas", element: <Ofertas /> },
+
+      // Flujo de compra
       { path: "checkout", element: <Checkout /> },
       { path: "exito", element: <Exito /> },
       { path: "fallo", element: <Fallo /> },
+
+      // Rutas antiguas de compra (mantienen compatibilidad)
+      { path: "compra/ok/:id", element: <Exito /> },
+      { path: "compra/error", element: <Fallo /> },
+
+      // Contenido
       { path: "blogs", element: <Blogs /> },
       { path: "nosotros", element: <Nosotros /> },
       { path: "contacto", element: <Contacto /> },
+
+      // Auth / usuario
       { path: "login", element: <Login /> },
       { path: "registro", element: <Registro /> },
       { path: "carrito", element: <Carrito /> },
+
+      // Alias
       { path: "inicio", element: <Navigate to="/home" replace /> },
     ],
+  },
+
+  // Alias directo a la raíz (antes tenías /Fondo)
+  {
+    path: "/Fondo",
+    element: <Navigate to="/" replace />,
   },
 ];

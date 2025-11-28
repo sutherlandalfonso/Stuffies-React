@@ -1,4 +1,4 @@
-// src/routes/admin.js
+// src/routes/admin.jsx (o .js)
 import { Navigate } from "react-router-dom";
 import AdminLayout from "../admin/AdminLayout.jsx";
 
@@ -48,7 +48,7 @@ export const adminRoutes = [
       { path: "productos/editar/:id", element: <ProductoEditar /> },
       { path: "productos/criticos", element: <ProductosCriticos /> },
 
-      // Reportes (puedes usar este como “global”, o mantener el de productos arriba)
+      // Reportes
       { path: "reportes", element: <Reportes /> },
 
       // Categorías
@@ -65,7 +65,7 @@ export const adminRoutes = [
       // Perfil
       { path: "perfil", element: <Perfil /> },
 
-      // Fallback opcional
+      // Fallback opcional interno de /admin
       { path: "*", element: <Navigate to="/admin" replace /> },
     ],
   },
