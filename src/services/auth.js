@@ -1,9 +1,9 @@
-// src/services/auth.js
+// src/services/authjs.js
 import { apiClient } from "./apiClient";
 
-// Leer / escribir sesión en localStorage
 const SESSION_KEY = "stuffies_session";
 
+// Leer sesión desde localStorage
 export function getSession() {
   try {
     return JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
@@ -12,31 +12,35 @@ export function getSession() {
   }
 }
 
+// Guardar sesión y notificar cambios
 export function setSession(data) {
   localStorage.setItem(SESSION_KEY, JSON.stringify(data));
-  // avisar a otros componentes (Header, etc.)
   try {
     window.dispatchEvent(new Event("session:updated"));
-  } catch {}
+  } catch {
+    // ignorar
+  }
 }
 
+// Borrar sesión
 export function clearSession() {
   localStorage.removeItem(SESSION_KEY);
   try {
     window.dispatchEvent(new Event("session:updated"));
-  } catch {}
+  } catch {
+    // ignorar
+  }
 }
 
-// ---- Llamadas reales a la API ----
-
-// Login: devuelve user + token desde el backend
+// === LOGIN contra el backend Spring Boot ===
+// Llama a POST http://localhost:8080/api/auth/login
 export async function login({ username, password }) {
   const resp = await apiClient.post("/api/auth/login", {
     username,
     password,
   });
 
-  // Se espera que resp tenga { token, user: { ... } }
+  // resp: { token, user: { ... } }
   const sessionData = {
     ...resp.user,
     token: resp.token,
@@ -44,21 +48,4 @@ export async function login({ username, password }) {
 
   setSession(sessionData);
   return sessionData;
-}
-
-// Registro (si tu backend lo soporta)
-export async function register(payload) {
-  // payload podría incluir { nombre, email, username, password }
-  const resp = await apiClient.post("/api/auth/register", payload);
-  return resp; // depende de cómo lo definas en el backend
-}
-
-// Traer info actual del usuario autenticado (opcional)
-export async function fetchCurrentUser() {
-  const data = await apiClient.get("/api/auth/me");
-  const current = getSession();
-  if (current) {
-    setSession({ ...current, ...data }); // sincronizar datos
-  }
-  return data;
 }

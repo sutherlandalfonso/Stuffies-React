@@ -1,6 +1,6 @@
 // src/services/apiClient.js
 
-const API_BASE_URL = "http://localhost:8080"; // ajusta al puerto de tu backend
+const API_BASE_URL = "http://localhost:8080"; // mismo puerto que Spring Boot
 
 function getSessionToken() {
   try {
@@ -29,13 +29,13 @@ async function request(method, path, body) {
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
     throw new Error(
-      `Error ${res.status} ${res.statusText} - ${errText || "Error en la API"}`
+      `Error ${res.status} ${res.statusText} - ${
+        errText || "Error en la API"
+      }`
     );
   }
 
-  // si no hay contenido (204)
   if (res.status === 204) return null;
-
   return res.json();
 }
 
